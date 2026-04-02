@@ -217,12 +217,15 @@ Wave 2 (Depends on Wave 1):
 
 **Success Criteria** (what must be TRUE):
 
-1. Zap library is fully replaced with zerolog
-2. Logs are colored when outputting to a terminal (TTY detection)
-3. Log format remains structured and readable
-4. All existing log calls work with zerolog API
+1. ✓ Zap library is fully replaced with zerolog
+2. ✓ Logs are colored when outputting to a terminal (TTY detection)
+3. ✓ Log format remains structured and readable
+4. ✓ All existing log calls work with zerolog API
 
-**Plans:** TBD
+**Plans:** 1/1 complete
+
+Plans:
+- [x] 07-01-PLAN.md — Zerolog migration with colored output (Wave 1 & 2 combined)
 
 ---
 
@@ -236,7 +239,7 @@ Wave 2 (Depends on Wave 1):
 | 4. Timelapse Recording | 3/3 | Complete    | 2026-04-02 |
 | 5. Documentation & README | 1/1 | **Complete** | 2026-04-02 |
 | 6. Structured Logging with Zap | 2/2 | Complete    | 2026-04-02 |
-| 7. Colored Logging with Zerolog | 0/TBD | Not started | — |
+| 7. Colored Logging with Zerolog | 1/1 | **Complete** | 2026-04-02 |
 
 ---
 
@@ -269,11 +272,14 @@ Wave 2 (Depends on Wave 1):
 | LOG-01 | Phase 6 | Complete (Plan 06-01) |
 | LOG-02 | Phase 6 | Complete (Plan 06-02) |
 | LOG-03 | Phase 6 | Complete (Plan 06-01) |
+| LOG-04 | Phase 7 | Complete (Plan 07-01) |
+| LOG-05 | Phase 7 | Complete (Plan 07-01) |
 
 **Coverage Summary:**
 - v1.0 requirements: 18 total (Complete)
 - v1.1 requirements: 3 total (Complete)
-- Mapped to phases: 21 ✓
+- v1.2 requirements: 2 total (Complete)
+- Mapped to phases: 23 ✓
 - Unmapped: 0 ✓
 
 ---
