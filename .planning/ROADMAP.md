@@ -45,7 +45,7 @@
 **Plans:** 2 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — CLI scaffolding, config system, ffmpeg validation (Wave 1)
+- [x] 01-01-PLAN.md — CLI scaffolding, config system, ffmpeg validation (Wave 1)
 - [ ] 01-02-PLAN.md — Record command with flag support, completing config precedence (Wave 2)
 
 ---
@@ -94,7 +94,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation & Configuration | 0/2 | Not started | — |
+| 1. Foundation & Configuration | 1/2 | In Progress | 2025-04-02 |
 | 2. Core Recording Engine | 0/3 | Not started | — |
 | 3. Resilience & Feedback | 0/2 | Not started | — |
 
@@ -104,9 +104,9 @@ Plans:
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CONF-01 | Phase 1 | Pending |
+| CONF-01 | Phase 1 | Complete (Plan 01-01) |
 | CONF-02 | Phase 1 | Pending |
-| CONF-03 | Phase 1 | Pending |
+| CONF-03 | Phase 1 | Complete (Plan 01-01) |
 | CONF-04 | Phase 1 | Pending |
 | REC-01 | Phase 2 | Pending |
 | REC-02 | Phase 2 | Pending |
@@ -114,12 +114,12 @@ Plans:
 | REC-04 | Phase 2 | Pending |
 | REC-05 | Phase 2 | Pending |
 | REC-06 | Phase 3 | Pending |
-| REC-07 | Phase 1 | Pending |
+| REC-07 | Phase 1 | Complete (Plan 01-01) |
 | STOP-01 | Phase 2 | Pending |
 | STOP-02 | Phase 2 | Pending |
 | STOP-03 | Phase 2 | Pending |
 | STOP-04 | Phase 2 | Pending |
-| ERR-01 | Phase 1 | Pending |
+| ERR-01 | Phase 1 | Complete (Plan 01-01) |
 | ERR-02 | Phase 3 | Pending |
 | ERR-03 | Phase 2 | Pending |
 | ERR-04 | Phase 3 | Pending |

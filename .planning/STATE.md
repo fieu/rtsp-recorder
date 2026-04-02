@@ -23,14 +23,14 @@
 
 **Current Phase:** Phase 1 — Foundation & Configuration
 
-**Current Plan:** 01-01 (ready to execute)
+**Current Plan:** 01-02 (ready to execute)
 
 **Status:** Planned
 
-**Progress:** 0/18 requirements complete, 2 plans ready
+**Progress:** 4/18 requirements complete, 1/8 plans complete
 
 ```
-[                    ] 0%
+[██                  ] 22%
 ```
 
 ---
@@ -39,7 +39,7 @@
 
 | Phase | Name | Status | Req Complete | Plans Done |
 |-------|------|--------|--------------|------------|
-| 1 | Foundation & Configuration | Planned | 0/6 | 0/2 |
+| 1 | Foundation & Configuration | In Progress | 4/6 | 1/2 |
 | 2 | Core Recording Engine | Not started | 0/7 | 0/3 |
 | 3 | Resilience & Feedback | Not started | 0/5 | 0/2 |
 
@@ -49,12 +49,12 @@
 
 | Metric | Value |
 |--------|-------|
-| Requirements completed | 0/18 |
+| Requirements completed | 4/18 |
 | Phases completed | 0/3 |
-| Plans completed | 0/8 |
-| Success criteria verified | 0/13 |
-| Defects found | 0 |
-| Defects fixed | 0 |
+| Plans completed | 1/8 |
+| Success criteria verified | 4/4 |
+| Defects found | 1 |
+| Defects fixed | 1 |
 
 ---
 
@@ -68,6 +68,8 @@
 | Single stream for v1 | Keeps initial scope focused, concurrent adds complexity | 2025-04-02 |
 | Timestamp-based filenames | Automatic organization, no naming decisions needed | 2025-04-02 |
 | YAML config with Viper | Standard Go config pattern, supports env override | 2025-04-02 |
+| Explicit config file path | Avoid Viper finding binary "rtsp-recorder" and parsing as YAML | 2025-04-02 |
+| Conservative defaults | 60m duration, 1024MB max, 3 retries for safe operation | 2025-04-02 |
 
 ### Open Questions
 
@@ -75,7 +77,9 @@
 
 ### Known Issues
 
-(None yet)
+| Issue | Status | Resolution |
+|-------|--------|------------|
+| Viper config discovery conflict | Fixed | Use SetConfigFile("./rtsp-recorder.yml") instead of SetConfigName to avoid binary conflict |
 
 ### Technical Debt
 
@@ -85,18 +89,18 @@
 
 ## Session Continuity
 
-**Last action:** Phase 1 planning complete
+**Last action:** Completed Plan 01-01 (Foundation & Configuration - CLI scaffolding, Viper config, ffmpeg validation)
 
-**Next action:** Execute Phase 1 (`/gsd-execute-phase 1`)
+**Next action:** Execute Plan 01-02
 
 **Blockers:** None
 
 **Working Notes:**
 
-- Research indicates HIGH confidence for all phases
-- Critical pitfalls identified from research (zombie processes, MP4 corruption, signal handling) — ensure these are addressed in Phase 1/2 planning
-- FFmpeg version check should happen in Phase 1 (early validation)
-- Segmented recording deferred — not in v1 requirements, consider for v2
+- Plan 01-01 complete: CLI foundation with Cobra, Viper config system, ffmpeg validation
+- All 4 success criteria verified (--help, config file, env vars, validate command)
+- Deviation: Fixed Viper config discovery to avoid binary name conflict
+- Ready for Phase 1 Plan 2: Core recording command implementation
 
 ---
 
