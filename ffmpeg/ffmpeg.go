@@ -192,8 +192,11 @@ func (c *Cmd) buildArgs(url, outputPath string) []string {
 		// Input URL
 		"-i", url,
 
-		// D-14: Stream copy mode - no re-encoding, lowest CPU usage
-		"-c", "copy",
+		// D-14: Copy video without re-encoding (low CPU), but re-encode audio to AAC
+		// pcm_alaw and other RTSP audio codecs aren't compatible with MP4 container
+		"-c:v", "copy",
+		"-c:a", "aac",
+		"-b:a", "128k",
 
 		// D-16: Output format MP4
 		"-f", "mp4",
