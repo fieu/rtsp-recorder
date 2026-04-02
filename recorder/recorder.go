@@ -15,7 +15,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"go.uber.org/zap"
+	"github.com/rs/zerolog"
 	"rtsp-recorder/config"
 	"rtsp-recorder/ffmpeg"
 	"rtsp-recorder/internal/utils"
@@ -29,11 +29,11 @@ type Recorder struct {
 	outputPath    string
 	startTime     time.Time
 	bytesRecorded int64 // atomic
-	logger        *zap.Logger
+	logger        zerolog.Logger
 }
 
 // New creates a new Recorder with the given configuration.
-func New(cfg *config.Config, logger *zap.Logger) *Recorder {
+func New(cfg *config.Config, logger zerolog.Logger) *Recorder {
 	return &Recorder{
 		config: cfg,
 		logger: logger,
@@ -65,16 +65,16 @@ func (r *Recorder) Record(url string) error {
 
 	r.outputPath = filepath.Join(cwd, filename)
 
-	r.logger.Info("Output file", zap.String("path", r.outputPath))
+	r.logger.Info().Str("path", r.outputPath).Msg("Output file")
 
 	// Create ffmpeg command
 	r.ffmpeg = ffmpeg.New(r.config)
 
 	// Debug logging for ffmpeg configuration
-	r.logger.Debug("FFmpeg command created",
-		zap.String("ffmpeg_path", r.config.GetFFmpegPath()),
-		zap.Bool("timelapse_enabled", r.config.TimelapseDuration > 0),
-	)
+	r.logger.Debug().
+		Str("ffmpeg_path", r.config.GetFFmpegPath()).
+		Bool("timelapse_enabled", r.config.TimelapseDuration > 0).
+		Msg("FFmpeg command created")
 
 	// Create parent context
 	ctx := context.Background()
@@ -124,11 +124,11 @@ func (r *Recorder) runWithStopConditions(ctx context.Context) error {
 	time.Sleep(100 * time.Millisecond) // Let final display flush
 
 	fmt.Println() // New line after progress display
-	r.logger.Info("Stopping recording", zap.String("reason", reason.Desc))
+	r.logger.Info().Str("reason", reason.Desc).Msg("Stopping recording")
 
 	// Stop ffmpeg gracefully
 	if err := r.ffmpeg.Stop(); err != nil {
-		r.logger.Warn("FFmpeg stop error", zap.Error(err))
+		r.logger.Warn().Err(err).Msg("FFmpeg stop error")
 	}
 
 	// Print final summary (D-23)
@@ -210,7 +210,7 @@ func (r *Recorder) printFinalSummary() {
 	// Get final file info
 	info, err := os.Stat(r.outputPath)
 	if err != nil {
-		r.logger.Warn("Could not read output file", zap.Error(err))
+		r.logger.Warn().Err(err).Msg("Could not read output file")
 		return
 	}
 

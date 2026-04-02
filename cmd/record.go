@@ -15,11 +15,11 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"go.uber.org/zap"
 	"rtsp-recorder/config"
 	rrerrors "rtsp-recorder/internal/errors"
 	"rtsp-recorder/internal/retry"
 	"rtsp-recorder/internal/validator"
+	"rtsp-recorder/logger"
 	"rtsp-recorder/recorder"
 )
 
@@ -64,7 +64,7 @@ func init() {
 }
 
 func runRecord(cmd *cobra.Command, args []string) error {
-	Logger.Info("Starting rtsp-recorder")
+	logger.Logger.Info().Msg("Starting rtsp-recorder")
 
 	// Load configuration (flags have already been bound to viper)
 	cfg, err := config.Load()
@@ -75,7 +75,7 @@ func runRecord(cmd *cobra.Command, args []string) error {
 	// If URL provided as positional argument, override config
 	if len(args) > 0 {
 		cfg.URL = args[0]
-		Logger.Info("Using URL from command line", zap.String("url", cfg.URL))
+		logger.Logger.Info().Str("url", cfg.URL).Msg("Using URL from command line")
 	}
 
 	// Validate URL is present
@@ -92,46 +92,47 @@ func runRecord(cmd *cobra.Command, args []string) error {
 	}
 
 	// Validate ffmpeg availability
-	Logger.Info("Checking FFmpeg installation")
+	logger.Logger.Info().Msg("Checking FFmpeg installation")
 	version, path, err := validator.ValidateFFmpeg()
 	if err != nil {
+		// err already has [ERROR] prefix from validator
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 		return fmt.Errorf("[ERROR] Cannot start recording: FFmpeg not available")
 	}
-	Logger.Info("FFmpeg found", zap.String("path", path), zap.String("version", version))
+	logger.Logger.Info().Str("path", path).Str("version", version).Msg("FFmpeg found")
 
 	// Note: RTSP validation is now done inside the retry loop for fresh checks
 	// Display configuration being used with structured logging
-	Logger.Info("Recording configuration",
-		zap.String("url", cfg.URL),
-		zap.Duration("duration", cfg.Duration),
-		zap.Int64("max_file_size_mb", cfg.MaxFileSize),
-		zap.Int("retry_attempts", cfg.RetryAttempts),
-	)
+	logger.Logger.Info().
+		Str("url", cfg.URL).
+		Dur("duration", cfg.Duration).
+		Int64("max_file_size_mb", cfg.MaxFileSize).
+		Int("retry_attempts", cfg.RetryAttempts).
+		Msg("Recording configuration")
 
 	// Per D-59: Display timelapse info when enabled
 	if cfg.TimelapseDuration > 0 {
 		speedup := float64(cfg.Duration) / float64(cfg.TimelapseDuration)
-		Logger.Info("Timelapse enabled",
-			zap.Float64("speedup", speedup),
-			zap.Duration("input_duration", cfg.Duration),
-			zap.Duration("output_duration", cfg.TimelapseDuration),
-		)
-		Logger.Info("Audio disabled (timelapse mode)")
+		logger.Logger.Info().
+			Float64("speedup", speedup).
+			Dur("input_duration", cfg.Duration).
+			Dur("output_duration", cfg.TimelapseDuration).
+			Msg("Timelapse enabled")
+		logger.Logger.Info().Msg("Audio disabled (timelapse mode)")
 	}
 
-	Logger.Info("Starting recording")
-	Logger.Info("Press Ctrl+C to stop")
+	logger.Logger.Info().Msg("Starting recording")
+	logger.Logger.Info().Msg("Press Ctrl+C to stop")
 
 	// Create signal context for graceful shutdown
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
 	// Create and run recorder with retry logic
-	rec := recorder.New(cfg, Logger)
+	rec := recorder.New(cfg, logger.Logger)
 
 	// Create retry configuration
-	retryCfg := retry.DefaultRetryConfig(cfg, Logger)
+	retryCfg := retry.DefaultRetryConfig(cfg, logger.Logger)
 	retryCfg.ShouldRetry = func(err error) bool {
 		// Check if error is classified and retryable
 		if classified, ok := err.(*rrerrors.ClassifiedError); ok {

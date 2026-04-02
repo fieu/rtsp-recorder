@@ -17,7 +17,7 @@ import (
 	"fmt"
 	"time"
 
-	"go.uber.org/zap"
+	"github.com/rs/zerolog"
 	"rtsp-recorder/config"
 	rrerrors "rtsp-recorder/internal/errors"
 )
@@ -29,7 +29,7 @@ type RetryConfig struct {
 	ShouldRetry func(error) bool
 	OnRetry     func(attempt int, maxAttempts int, delay time.Duration)
 	OnFailure   func(attempts int, lastErr error) error
-	Logger      *zap.Logger // Logger for structured retry logging
+	Logger      zerolog.Logger // Logger for structured retry logging
 }
 
 // Retry executes the operation with configured retry logic.
@@ -101,7 +101,7 @@ func Retry(ctx context.Context, cfg RetryConfig, operation func() error) error {
 // DefaultRetryConfig creates a RetryConfig from the application Config.
 // It uses cfg.RetryAttempts for MaxAttempts (default 3 per D-05).
 // Fixed 5-second delay per D-32.
-func DefaultRetryConfig(cfg *config.Config, logger *zap.Logger) RetryConfig {
+func DefaultRetryConfig(cfg *config.Config, logger zerolog.Logger) RetryConfig {
 	maxAttempts := cfg.RetryAttempts
 	if maxAttempts <= 0 {
 		maxAttempts = 3 // Default per D-05
@@ -185,15 +185,13 @@ func contains(str, substr string) bool {
 // defaultOnRetry provides the default retry notification.
 // Per D-40: "[INFO] Retry 1/3 after 5s..."
 // Per D-71: Use Warn level for retries (recoverable issues)
-func defaultOnRetry(logger *zap.Logger) func(attempt, maxAttempts int, delay time.Duration) {
+func defaultOnRetry(logger zerolog.Logger) func(attempt, maxAttempts int, delay time.Duration) {
 	return func(attempt, maxAttempts int, delay time.Duration) {
-		if logger != nil {
-			logger.Warn("Retrying after error",
-				zap.Int("attempt", attempt),
-				zap.Int("max_attempts", maxAttempts),
-				zap.Duration("delay", delay),
-			)
-		}
+		logger.Warn().
+			Int("attempt", attempt).
+			Int("max_attempts", maxAttempts).
+			Dur("delay", delay).
+			Msg("Retrying after error")
 	}
 }
 

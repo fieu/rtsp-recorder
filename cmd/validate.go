@@ -10,9 +10,9 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"go.uber.org/zap"
 	"rtsp-recorder/config"
 	"rtsp-recorder/internal/validator"
+	"rtsp-recorder/logger"
 )
 
 // validateCmd represents the validate command
@@ -43,7 +43,7 @@ func init() {
 }
 
 func runValidate(cmd *cobra.Command, args []string) error {
-	Logger.Info("Validating rtsp-recorder configuration")
+	logger.Logger.Info().Msg("Validating rtsp-recorder configuration")
 
 	// Load configuration
 	cfg, err := config.Load()
@@ -51,19 +51,19 @@ func runValidate(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("[ERROR] Configuration: %w", err)
 	}
 
-	Logger.Info("Configuration loaded successfully")
+	logger.Logger.Info().Msg("Configuration loaded successfully")
 
 	// Display configuration summary with structured logging
-	Logger.Info("Current configuration",
-		zap.String("url", valueOrDefault(cfg.URL, "(not set - will require --url flag)")),
-		zap.Duration("duration", cfg.Duration),
-		zap.Int64("max_file_size_mb", cfg.MaxFileSize),
-		zap.Int("retry_attempts", cfg.RetryAttempts),
-		zap.String("ffmpeg_path", cfg.GetFFmpegPath()),
-	)
+	logger.Logger.Info().
+		Str("url", valueOrDefault(cfg.URL, "(not set - will require --url flag)")).
+		Dur("duration", cfg.Duration).
+		Int64("max_file_size_mb", cfg.MaxFileSize).
+		Int("retry_attempts", cfg.RetryAttempts).
+		Str("ffmpeg_path", cfg.GetFFmpegPath()).
+		Msg("Current configuration")
 
 	// Validate FFmpeg
-	Logger.Info("Checking FFmpeg installation")
+	logger.Logger.Info().Msg("Checking FFmpeg installation")
 	version, path, err := validator.ValidateFFmpeg()
 	if err != nil {
 		// err already has [ERROR] prefix from validator
@@ -71,9 +71,9 @@ func runValidate(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("[ERROR] Validation failed: FFmpeg not available")
 	}
 
-	Logger.Info("FFmpeg found", zap.String("path", path), zap.String("version", version))
+	logger.Logger.Info().Str("path", path).Str("version", version).Msg("FFmpeg found")
 
-	Logger.Info("Validation completed successfully")
+	logger.Logger.Info().Msg("Validation completed successfully")
 	return nil
 }
 
