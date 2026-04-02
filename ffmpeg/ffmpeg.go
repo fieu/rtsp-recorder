@@ -302,6 +302,25 @@ func (c *Cmd) GetTimelapseInterval() int {
 	return c.timelapseInterval
 }
 
+// GetSpeedupFactor returns the calculated speedup factor for timelapse.
+// Returns 1 if timelapse is disabled.
+// Per D-59: Enables progress display to show "[INFO] Timelapse: 360x speed (1h -> 10s)"
+func (c *Cmd) GetSpeedupFactor() float64 {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	if c.timelapseInterval <= 1 {
+		return 1.0
+	}
+
+	// Speedup is approximately the interval (at default frame rate assumption)
+	// More precise: use config durations
+	if c.config.TimelapseDuration > 0 && c.config.Duration > 0 {
+		return float64(c.config.Duration) / float64(c.config.TimelapseDuration)
+	}
+	return float64(c.timelapseInterval)
+}
+
 // waitAndParseError waits for the process to exit and parses the error.
 func (c *Cmd) waitAndParseError() error {
 	c.mu.Lock()

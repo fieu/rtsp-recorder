@@ -455,6 +455,71 @@ func TestBuildArgs_VideoCopyAlwaysPresent(t *testing.T) {
 	}
 }
 
+// TestGetSpeedupFactor_ReturnsOneWhenDisabled tests GetSpeedupFactor returns 1 when timelapse disabled
+func TestGetSpeedupFactor_ReturnsOneWhenDisabled(t *testing.T) {
+	cfg := config.DefaultConfig()
+	cfg.TimelapseDuration = 0 // Disabled
+
+	cmd := New(cfg)
+	speedup := cmd.GetSpeedupFactor()
+	if speedup != 1.0 {
+		t.Errorf("GetSpeedupFactor should return 1.0 when timelapse disabled, got %f", speedup)
+	}
+}
+
+// TestGetSpeedupFactor_ReturnsCorrectValue tests GetSpeedupFactor returns correct speedup
+func TestGetSpeedupFactor_ReturnsCorrectValue(t *testing.T) {
+	cfg := config.DefaultConfig()
+	cfg.Duration = time.Hour
+	cfg.TimelapseDuration = 10 * time.Second
+
+	cmd := New(cfg)
+	speedup := cmd.GetSpeedupFactor()
+	expected := 360.0 // 1h / 10s = 360x
+	if speedup != expected {
+		t.Errorf("GetSpeedupFactor should return %f (1h/10s), got %f", expected, speedup)
+	}
+}
+
+// TestGetSpeedupFactor_30MinTo5Sec tests GetSpeedupFactor for 30m->5s
+func TestGetSpeedupFactor_30MinTo5Sec(t *testing.T) {
+	cfg := config.DefaultConfig()
+	cfg.Duration = 30 * time.Minute
+	cfg.TimelapseDuration = 5 * time.Second
+
+	cmd := New(cfg)
+	speedup := cmd.GetSpeedupFactor()
+	expected := 360.0 // 30m / 5s = 360x
+	if speedup != expected {
+		t.Errorf("GetSpeedupFactor should return %f (30m/5s), got %f", expected, speedup)
+	}
+}
+
+// TestGetTimelapseInterval_ReturnsCorrectValue tests GetTimelapseInterval returns the interval
+func TestGetTimelapseInterval_ReturnsCorrectValue(t *testing.T) {
+	cfg := config.DefaultConfig()
+	cfg.Duration = time.Hour
+	cfg.TimelapseDuration = 10 * time.Second
+
+	cmd := New(cfg)
+	interval := cmd.GetTimelapseInterval()
+	if interval != 360 {
+		t.Errorf("GetTimelapseInterval should return 360 (1h/10s), got %d", interval)
+	}
+}
+
+// TestGetTimelapseInterval_DefaultIsOne tests GetTimelapseInterval returns 1 by default
+func TestGetTimelapseInterval_DefaultIsOne(t *testing.T) {
+	cfg := config.DefaultConfig()
+	// Default config has TimelapseDuration = 0
+
+	cmd := New(cfg)
+	interval := cmd.GetTimelapseInterval()
+	if interval != 1 {
+		t.Errorf("GetTimelapseInterval should return 1 by default, got %d", interval)
+	}
+}
+
 // Test Stop() is idempotent - safe to call multiple times
 func TestStop_Idempotent(t *testing.T) {
 	cfg := config.DefaultConfig()
