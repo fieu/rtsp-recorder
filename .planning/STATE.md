@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 4
-current_plan: 04-01 complete
-status: in-progress
-last_updated: "2026-04-02T10:10:00.000Z"
+current_phase: 4 (Timelapse Recording)
+current_plan: 04-02 complete
+status: executing
+last_updated: "2026-04-02T10:35:00.035Z"
 progress:
   total_phases: 4
   completed_phases: 3
   total_plans: 10
-  completed_plans: 8
-  percent: 80
+  completed_plans: 10
+  percent: 92
 ---
 
 # State: rtsp-recorder
@@ -40,11 +40,11 @@ progress:
 
 **Current Phase:** 4 (Timelapse Recording)
 
-**Current Plan:** 04-01 complete
+**Current Plan:** 04-02 complete
 
 **Status:** In Progress
 
-**Progress:** [████████████░░░░░░░░] 80%
+**Progress:** [█████████░] 92%
 
 ---
 
@@ -55,7 +55,7 @@ progress:
 | 1 | Foundation & Configuration | **Complete** | 6/6 | 2/2 |
 | 2 | Core Recording Engine | **Complete** | 7/7 | 3/3 |
 | 3 | Resilience & Feedback | **Complete** | 5/5 | 2/2 |
-| 4 | Timelapse Recording | **In Progress** | 0/3 | 1/3 |
+| 4 | Timelapse Recording | **In Progress** | 1/3 | 2/3 |
 
 ---
 
@@ -63,9 +63,9 @@ progress:
 
 | Metric | Value |
 |--------|-------|
-| Requirements completed | 14/21 |
+| Requirements completed | 15/21 |
 | Phases completed | 3/4 |
-| Plans completed | 8/10 |
+| Plans completed | 9/10 |
 | Success criteria verified | 14/14 |
 | Defects found | 2 |
 | Defects fixed | 2 |
@@ -75,8 +75,10 @@ progress:
 | 03-01 | 148s | 3 |
 | 03-02 | 180s | 3 |
 | 04-01 | ~300s | 3 |
+| 04-02 | 15m | 4 |
 
 ---
+| Phase 04 P02 | 15m | 4 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -113,6 +115,8 @@ progress:
 | --timelapse value is target OUTPUT | User specifies desired output duration per D-52 | 2026-04-02 |
 | Timelapse requires --duration | Cannot calculate speedup without recording duration per D-51 | 2026-04-02 |
 | Minimum 1s timelapse duration | Prevent invalid ultra-short outputs per D-55 | 2026-04-02 |
+| Timelapse filter: select+setpts | FFmpeg filter chain for frame dropping per D-56 | 2026-04-02 |
+| Timelapse drops audio | Simpler approach, typical for timelapse videos per D-58 | 2026-04-02 |
 
 ### Open Questions
 
@@ -132,21 +136,22 @@ progress:
 
 ## Session Continuity
 
-**Last action:** Completed Plan 04-01 (Timelapse config and flag registration)
+**Last action:** Completed Plan 04-02 (FFmpeg timelapse filter implementation)
 
-**Next action:** Plan 04-02 (FFmpeg timelapse filter implementation)
+**Next action:** Plan 04-03 (Progress display and stop condition integration)
 
 **Blockers:** None
 
 **Working Notes:**
 
-- Plan 04-01 complete: Timelapse configuration support added
-- Config: TimelapseDuration field with mapstructure tag
-- Flag: --timelapse/-l registered and bound to timelapse_duration
-- Validation: Requires --duration, minimum 1s, clear error messages
-- 11 new tests added (3 config + 8 cmd), all passing
-- Build succeeds, flag appears in help
-- Ready for 04-02: FFmpeg filter implementation
+- Plan 04-02 complete: FFmpeg timelapse filter implementation
+- CalculateFrameInterval(): Calculates N for select='not(mod(n,N))' filter
+- Cmd.timelapseInterval: Stored at initialization, used in buildArgs()
+- Timelapse filter: select='not(mod(n,X))',setpts=N/(FRAME_RATE*TB) per D-56
+- Audio handling: -an (no audio) when timelapse enabled per D-58
+- Getter methods: GetTimelapseInterval() and GetSpeedupFactor() per D-59
+- 18 new tests added, all passing (46 total in ffmpeg package)
+- Ready for 04-03: Progress display and stop condition integration
 
 ---
 
@@ -159,4 +164,4 @@ progress:
 
 ---
 
-*State updated: 2026-04-02 after Plan 04-01 completion*
+*State updated: 2026-04-02 after Plan 04-02 completion*
