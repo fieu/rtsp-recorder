@@ -234,6 +234,67 @@ func contains(slice []string, item string) bool {
 	return false
 }
 
+// TestCalculateFrameInterval tests the frame interval calculation for timelapse
+// Per D-53, D-54: Speedup factor = record_duration / timelapse_duration
+func TestCalculateFrameInterval_BasicCalculation(t *testing.T) {
+	// 1 hour recording condensed to 10 seconds at 30fps
+	// Speedup = 3600s / 10s = 360x, keep every 360th frame
+	interval := CalculateFrameInterval(time.Hour, 10*time.Second, 30.0)
+	if interval != 360 {
+		t.Errorf("CalculateFrameInterval(1h, 10s, 30fps) = %d, want 360", interval)
+	}
+
+	// 30 minutes to 5 seconds at 30fps
+	// Speedup = 1800s / 5s = 360x
+	interval = CalculateFrameInterval(30*time.Minute, 5*time.Second, 30.0)
+	if interval != 360 {
+		t.Errorf("CalculateFrameInterval(30m, 5s, 30fps) = %d, want 360", interval)
+	}
+
+	// 1 hour to 1 minute at 30fps
+	// Speedup = 3600s / 60s = 60x
+	interval = CalculateFrameInterval(time.Hour, time.Minute, 30.0)
+	if interval != 60 {
+		t.Errorf("CalculateFrameInterval(1h, 1m, 30fps) = %d, want 60", interval)
+	}
+}
+
+// TestCalculateFrameInterval_ZeroTimelapse returns 1 when timelapse is disabled
+func TestCalculateFrameInterval_ZeroTimelapse(t *testing.T) {
+	interval := CalculateFrameInterval(time.Hour, 0, 30.0)
+	if interval != 1 {
+		t.Errorf("CalculateFrameInterval with timelapse=0 = %d, want 1", interval)
+	}
+}
+
+// TestCalculateFrameInterval_ZeroDuration returns 1 when duration is 0
+func TestCalculateFrameInterval_ZeroDuration(t *testing.T) {
+	interval := CalculateFrameInterval(0, 10*time.Second, 30.0)
+	if interval != 1 {
+		t.Errorf("CalculateFrameInterval with duration=0 = %d, want 1", interval)
+	}
+}
+
+// TestCalculateFrameInterval_NeverReturnsZero ensures minimum value is 1
+func TestCalculateFrameInterval_NeverReturnsZero(t *testing.T) {
+	// Very small duration ratio should still return at least 1
+	interval := CalculateFrameInterval(time.Second, time.Hour, 30.0)
+	if interval < 1 {
+		t.Errorf("CalculateFrameInterval should never return < 1, got %d", interval)
+	}
+	if interval != 1 {
+		t.Errorf("CalculateFrameInterval with inverted ratio should return 1, got %d", interval)
+	}
+}
+
+// TestCalculateFrameInterval_NeverReturnsNegative ensures no negative values
+func TestCalculateFrameInterval_NeverReturnsNegative(t *testing.T) {
+	interval := CalculateFrameInterval(-time.Hour, 10*time.Second, 30.0)
+	if interval < 1 {
+		t.Errorf("CalculateFrameInterval with negative duration should return >= 1, got %d", interval)
+	}
+}
+
 // Test Stop() is idempotent - safe to call multiple times
 func TestStop_Idempotent(t *testing.T) {
 	cfg := config.DefaultConfig()

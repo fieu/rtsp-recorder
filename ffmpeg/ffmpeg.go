@@ -30,6 +30,27 @@ import (
 	rrerrors "rtsp-recorder/internal/errors"
 )
 
+// CalculateFrameInterval calculates the frame selection interval for timelapse.
+// Returns the N value for select='not(mod(n,N))' - keep every Nth frame.
+// Per D-54: N = total_expected_frames / target_frames
+func CalculateFrameInterval(recordDuration, timelapseDuration time.Duration, frameRate float64) int {
+	if timelapseDuration <= 0 || recordDuration <= 0 {
+		return 1 // No timelapse, keep all frames
+	}
+
+	// Per D-53: Speedup factor = record_duration / timelapse_duration
+	speedup := float64(recordDuration) / float64(timelapseDuration)
+
+	// Per D-54: Keep every Nth frame where N = speedup (at default frame rate)
+	// At 30fps: if speedup is 360x, we keep every 360th frame
+	interval := int(speedup)
+	if interval < 1 {
+		interval = 1
+	}
+
+	return interval
+}
+
 // Cmd wraps an ffmpeg exec.Cmd with lifecycle management.
 // It provides graceful shutdown via signal escalation and proper
 // process cleanup to prevent zombies and ensure MP4 finalization.
