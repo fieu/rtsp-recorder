@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"time"
 
+	"go.uber.org/zap"
 	"rtsp-recorder/config"
 	rrerrors "rtsp-recorder/internal/errors"
 )
@@ -28,6 +29,7 @@ type RetryConfig struct {
 	ShouldRetry func(error) bool
 	OnRetry     func(attempt int, maxAttempts int, delay time.Duration)
 	OnFailure   func(attempts int, lastErr error) error
+	Logger      *zap.Logger // Logger for structured retry logging
 }
 
 // Retry executes the operation with configured retry logic.
@@ -99,7 +101,7 @@ func Retry(ctx context.Context, cfg RetryConfig, operation func() error) error {
 // DefaultRetryConfig creates a RetryConfig from the application Config.
 // It uses cfg.RetryAttempts for MaxAttempts (default 3 per D-05).
 // Fixed 5-second delay per D-32.
-func DefaultRetryConfig(cfg *config.Config) RetryConfig {
+func DefaultRetryConfig(cfg *config.Config, logger *zap.Logger) RetryConfig {
 	maxAttempts := cfg.RetryAttempts
 	if maxAttempts <= 0 {
 		maxAttempts = 3 // Default per D-05
@@ -109,8 +111,9 @@ func DefaultRetryConfig(cfg *config.Config) RetryConfig {
 		MaxAttempts: maxAttempts,
 		Delay:       5 * time.Second, // Fixed 5s delay per D-32
 		ShouldRetry: defaultShouldRetry,
-		OnRetry:     defaultOnRetry,
+		OnRetry:     defaultOnRetry(logger),
 		OnFailure:   defaultOnFailure,
+		Logger:      logger,
 	}
 }
 
@@ -181,8 +184,17 @@ func contains(str, substr string) bool {
 
 // defaultOnRetry provides the default retry notification.
 // Per D-40: "[INFO] Retry 1/3 after 5s..."
-func defaultOnRetry(attempt, maxAttempts int, delay time.Duration) {
-	fmt.Printf("[INFO] Retry %d/%d after %v...\n", attempt, maxAttempts, delay)
+// Per D-71: Use Warn level for retries (recoverable issues)
+func defaultOnRetry(logger *zap.Logger) func(attempt, maxAttempts int, delay time.Duration) {
+	return func(attempt, maxAttempts int, delay time.Duration) {
+		if logger != nil {
+			logger.Warn("Retrying after error",
+				zap.Int("attempt", attempt),
+				zap.Int("max_attempts", maxAttempts),
+				zap.Duration("delay", delay),
+			)
+		}
+	}
 }
 
 // defaultOnFailure provides the default failure handler.

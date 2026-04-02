@@ -20,7 +20,7 @@ func TestRecordRetryConfig(t *testing.T) {
 	// This test verifies the retry configuration used in runRecord
 	cfg := &config.Config{RetryAttempts: 3}
 
-	retryCfg := retry.DefaultRetryConfig(cfg)
+	retryCfg := retry.DefaultRetryConfig(cfg, nil)
 
 	if retryCfg.MaxAttempts != 3 {
 		t.Errorf("expected MaxAttempts=3, got %d", retryCfg.MaxAttempts)
@@ -42,7 +42,7 @@ func TestRecordRetry_ShouldRetry_NetworkError(t *testing.T) {
 	}
 
 	cfg := &config.Config{RetryAttempts: 3}
-	retryCfg := retry.DefaultRetryConfig(cfg)
+	retryCfg := retry.DefaultRetryConfig(cfg, nil)
 
 	if !retryCfg.ShouldRetry(networkErr) {
 		t.Error("expected NetworkError to trigger retry")
@@ -58,7 +58,7 @@ func TestRecordRetry_ShouldRetry_AuthError(t *testing.T) {
 	}
 
 	cfg := &config.Config{RetryAttempts: 3}
-	retryCfg := retry.DefaultRetryConfig(cfg)
+	retryCfg := retry.DefaultRetryConfig(cfg, nil)
 
 	if retryCfg.ShouldRetry(authErr) {
 		t.Error("expected AuthenticationError to not trigger retry")
@@ -74,7 +74,7 @@ func TestRecordRetry_ShouldRetry_StreamError(t *testing.T) {
 	}
 
 	cfg := &config.Config{RetryAttempts: 3}
-	retryCfg := retry.DefaultRetryConfig(cfg)
+	retryCfg := retry.DefaultRetryConfig(cfg, nil)
 
 	if retryCfg.ShouldRetry(streamErr) {
 		t.Error("expected StreamError to not trigger retry")
@@ -90,7 +90,7 @@ func TestRecordRetry_ShouldRetry_ConfigurationError(t *testing.T) {
 	}
 
 	cfg := &config.Config{RetryAttempts: 3}
-	retryCfg := retry.DefaultRetryConfig(cfg)
+	retryCfg := retry.DefaultRetryConfig(cfg, nil)
 
 	if retryCfg.ShouldRetry(configErr) {
 		t.Error("expected ConfigurationError to not trigger retry")
@@ -106,7 +106,7 @@ func TestRecordRetry_ShouldRetry_FFmpegError(t *testing.T) {
 	}
 
 	cfg := &config.Config{RetryAttempts: 3}
-	retryCfg := retry.DefaultRetryConfig(cfg)
+	retryCfg := retry.DefaultRetryConfig(cfg, nil)
 
 	if retryCfg.ShouldRetry(ffmpegErr) {
 		t.Error("expected FFmpegError to not trigger retry")
@@ -117,7 +117,7 @@ func TestRecordRetry_ShouldRetry_FFmpegError(t *testing.T) {
 func TestRecordRetry_WithMockNetworkFailures(t *testing.T) {
 	callCount := 0
 	cfg := &config.Config{RetryAttempts: 3}
-	retryCfg := retry.DefaultRetryConfig(cfg)
+	retryCfg := retry.DefaultRetryConfig(cfg, nil)
 
 	// Override delay for faster test
 	retryCfg.Delay = 10 * time.Millisecond
@@ -148,7 +148,7 @@ func TestRecordRetry_WithMockNetworkFailures(t *testing.T) {
 func TestRecordRetry_ExhaustedAttempts(t *testing.T) {
 	callCount := 0
 	cfg := &config.Config{RetryAttempts: 2}
-	retryCfg := retry.DefaultRetryConfig(cfg)
+	retryCfg := retry.DefaultRetryConfig(cfg, nil)
 	retryCfg.Delay = 10 * time.Millisecond
 
 	operation := func() error {
@@ -174,7 +174,7 @@ func TestRecordRetry_ExhaustedAttempts(t *testing.T) {
 func TestRecordRetry_NonClassifiedError(t *testing.T) {
 	callCount := 0
 	cfg := &config.Config{RetryAttempts: 3}
-	retryCfg := retry.DefaultRetryConfig(cfg)
+	retryCfg := retry.DefaultRetryConfig(cfg, nil)
 
 	operation := func() error {
 		callCount++
@@ -234,7 +234,7 @@ func TestRecordRetry_CallbacksInvoked(t *testing.T) {
 // TestRecordRetry_DefaultRetryAttempts verifies default value when not set.
 func TestRecordRetry_DefaultRetryAttempts(t *testing.T) {
 	cfg := &config.Config{RetryAttempts: 0}
-	retryCfg := retry.DefaultRetryConfig(cfg)
+	retryCfg := retry.DefaultRetryConfig(cfg, nil)
 
 	if retryCfg.MaxAttempts != 3 {
 		t.Errorf("expected default MaxAttempts=3, got %d", retryCfg.MaxAttempts)

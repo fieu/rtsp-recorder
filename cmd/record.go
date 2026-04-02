@@ -131,7 +131,7 @@ func runRecord(cmd *cobra.Command, args []string) error {
 	rec := recorder.New(cfg, Logger)
 
 	// Create retry configuration
-	retryCfg := retry.DefaultRetryConfig(cfg)
+	retryCfg := retry.DefaultRetryConfig(cfg, Logger)
 	retryCfg.ShouldRetry = func(err error) bool {
 		// Check if error is classified and retryable
 		if classified, ok := err.(*rrerrors.ClassifiedError); ok {
