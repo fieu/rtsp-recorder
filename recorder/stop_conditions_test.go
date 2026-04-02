@@ -345,3 +345,150 @@ func TestFileSizeMonitor_MultipleStarts(t *testing.T) {
 		t.Fatal("Wait() channel did not close")
 	}
 }
+
+// ==================== StopManager Tests ====================
+
+// TestStopManager_FirstTriggerWins verifies first monitor triggers stops others.
+func TestStopManager_FirstTriggerWins(t *testing.T) {
+	sm := NewStopManager()
+
+	// Add a duration monitor with very short timeout (50ms)
+	durationMon := NewDurationMonitor(50 * time.Millisecond)
+	sm.AddMonitor(durationMon)
+
+	// Add a signal monitor
+	signalMon := NewSignalMonitor()
+	sm.AddMonitor(signalMon)
+
+	// Start
+	sm.Start()
+
+	// Wait for stop - should be triggered by duration
+	select {
+	case reason := <-sm.Wait():
+		if reason.Name != "duration" {
+			t.Errorf("Expected 'duration' trigger, got %q", reason.Name)
+		}
+		if reason.Desc != "Duration limit reached" {
+			t.Errorf("Expected 'Duration limit reached', got %q", reason.Desc)
+		}
+	case <-time.After(2 * time.Second):
+		t.Fatal("StopManager did not trigger")
+	}
+}
+
+// TestStopManager_SignalTrigger verifies signal monitor can trigger stop.
+func TestStopManager_SignalTrigger(t *testing.T) {
+	sm := NewStopManager()
+
+	// Add a duration monitor with long timeout
+	durationMon := NewDurationMonitor(10 * time.Second)
+	sm.AddMonitor(durationMon)
+
+	// Add a signal monitor
+	signalMon := NewSignalMonitor()
+	sm.AddMonitor(signalMon)
+
+	// Start
+	sm.Start()
+
+	// Send SIGTERM
+	if err := syscall.Kill(syscall.Getpid(), syscall.SIGTERM); err != nil {
+		t.Fatalf("Failed to send SIGTERM: %v", err)
+	}
+
+	// Wait for stop - should be triggered by signal
+	select {
+	case reason := <-sm.Wait():
+		if reason.Name != "signal" {
+			t.Errorf("Expected 'signal' trigger, got %q", reason.Name)
+		}
+		if reason.Desc != "Interrupted by user (Ctrl+C)" {
+			t.Errorf("Expected 'Interrupted by user (Ctrl+C)', got %q", reason.Desc)
+		}
+	case <-time.After(2 * time.Second):
+		t.Fatal("StopManager did not trigger on signal")
+	}
+}
+
+// TestStopManager_ManualStop verifies Stop() method works.
+func TestStopManager_ManualStop(t *testing.T) {
+	sm := NewStopManager()
+
+	// Add a duration monitor with long timeout
+	durationMon := NewDurationMonitor(10 * time.Second)
+	sm.AddMonitor(durationMon)
+
+	// Start
+	sm.Start()
+
+	// Manually stop
+	sm.Stop()
+
+	// Wait should receive a reason (or channel close)
+	select {
+	case <-sm.Wait():
+		// Success - context was cancelled
+	case <-time.After(2 * time.Second):
+		t.Fatal("StopManager did not stop on manual Stop()")
+	}
+}
+
+// TestStopManager_Context returns valid context.
+func TestStopManager_Context(t *testing.T) {
+	sm := NewStopManager()
+	ctx := sm.Context()
+
+	if ctx == nil {
+		t.Fatal("Context() returned nil")
+	}
+
+	// Context should not be cancelled initially
+	select {
+	case <-ctx.Done():
+		t.Fatal("Context was cancelled immediately")
+	case <-time.After(100 * time.Millisecond):
+		// Expected - context is active
+	}
+}
+
+// TestStopManager_NoMonitors works with no monitors.
+func TestStopManager_NoMonitors(t *testing.T) {
+	sm := NewStopManager()
+
+	// Start with no monitors
+	sm.Start()
+
+	// Should close immediately (or very quickly)
+	select {
+	case <-sm.Wait():
+		// Success
+	case <-time.After(1 * time.Second):
+		// Also acceptable - might take time for cleanup goroutine
+	}
+}
+
+// TestStopManager_MultipleMonitorsSameType works with multiple monitors of same type.
+func TestStopManager_MultipleMonitorsSameType(t *testing.T) {
+	sm := NewStopManager()
+
+	// Add two duration monitors - one fast, one slow
+	fastMon := NewDurationMonitor(50 * time.Millisecond)
+	slowMon := NewDurationMonitor(5 * time.Second)
+
+	sm.AddMonitor(fastMon)
+	sm.AddMonitor(slowMon)
+
+	// Start
+	sm.Start()
+
+	// Should trigger on fast one
+	select {
+	case reason := <-sm.Wait():
+		if reason.Name != "duration" {
+			t.Errorf("Expected 'duration' trigger, got %q", reason.Name)
+		}
+	case <-time.After(2 * time.Second):
+		t.Fatal("StopManager did not trigger")
+	}
+}

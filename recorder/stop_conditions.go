@@ -255,3 +255,103 @@ func (m *FileSizeMonitor) CurrentSize() int64 {
 func (m *FileSizeMonitor) MaxBytes() int64 {
 	return m.maxBytes
 }
+
+// StopReason describes why recording was stopped.
+type StopReason struct {
+	Name string // Which monitor triggered: "signal", "duration", "file_size"
+	Desc string // Human-readable description
+}
+
+// StopManager coordinates multiple stop condition monitors.
+// Implements "first trigger wins" logic per D-17: any one stopping condition
+// causes all others to stop. Uses Go context for cancellation propagation.
+type StopManager struct {
+	mu       sync.Mutex
+	monitors []Monitor
+	stop     chan StopReason
+	ctx      context.Context
+	cancel   context.CancelFunc
+}
+
+// NewStopManager creates a new StopManager with background context.
+func NewStopManager() *StopManager {
+	ctx, cancel := context.WithCancel(context.Background())
+	return &StopManager{
+		stop:   make(chan StopReason, 1), // Buffered to prevent blocking
+		ctx:    ctx,
+		cancel: cancel,
+	}
+}
+
+// AddMonitor adds a monitor to be coordinated.
+func (sm *StopManager) AddMonitor(m Monitor) {
+	sm.mu.Lock()
+	defer sm.mu.Unlock()
+	sm.monitors = append(sm.monitors, m)
+}
+
+// Start begins all monitors and the coordination goroutine.
+// First monitor to trigger wins per D-17.
+func (sm *StopManager) Start() {
+	var wg sync.WaitGroup
+
+	// Start all monitors
+	for _, m := range sm.monitors {
+		m.Start(sm.ctx)
+	}
+
+	// Start a goroutine for each monitor to watch for triggers
+	for _, m := range sm.monitors {
+		wg.Add(1)
+		go func(mon Monitor) {
+			defer wg.Done()
+			select {
+			case <-mon.Wait():
+				// Try to send stop reason (non-blocking)
+				select {
+				case sm.stop <- StopReason{Name: mon.Name(), Desc: sm.describeReason(mon.Name())}:
+					sm.cancel() // Cancel context to signal other monitors
+				default:
+					// Another monitor already triggered, ignore
+				}
+			case <-sm.ctx.Done():
+				return
+			}
+		}(m)
+	}
+
+	// Cleanup goroutine to close stop channel when all monitors are done
+	go func() {
+		wg.Wait()
+		close(sm.stop)
+	}()
+}
+
+// describeReason returns a human-readable description for a monitor name.
+func (sm *StopManager) describeReason(name string) string {
+	switch name {
+	case "signal":
+		return "Interrupted by user (Ctrl+C)"
+	case "duration":
+		return "Duration limit reached"
+	case "file_size":
+		return "File size limit reached"
+	default:
+		return "Stop condition triggered"
+	}
+}
+
+// Wait returns a channel that receives the StopReason when any monitor triggers.
+func (sm *StopManager) Wait() <-chan StopReason {
+	return sm.stop
+}
+
+// Stop manually cancels the context to stop all monitors.
+func (sm *StopManager) Stop() {
+	sm.cancel()
+}
+
+// Context returns the internal context for use with ffmpeg CommandContext.
+func (sm *StopManager) Context() context.Context {
+	return sm.ctx
+}
