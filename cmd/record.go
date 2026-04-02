@@ -85,6 +85,11 @@ func runRecord(cmd *cobra.Command, args []string) error {
 			"  - Use --url flag: rtsp-recorder record --url rtsp://camera.local/stream")
 	}
 
+	// Validate timelapse configuration per D-51, D-55
+	if err := validateTimelapseConfig(cfg); err != nil {
+		return err
+	}
+
 	// Validate ffmpeg availability
 	fmt.Println("[INFO] Checking FFmpeg installation...")
 	version, path, err := validator.ValidateFFmpeg()
@@ -140,5 +145,22 @@ func runRecord(cmd *cobra.Command, args []string) error {
 		return err // Error already formatted by retry.OnFailure
 	}
 
+	return nil
+}
+
+// validateTimelapseConfig validates timelapse configuration settings.
+// Per D-51: Timelapse requires duration to be set.
+// Per D-55: Timelapse must be at least 1 second.
+func validateTimelapseConfig(cfg *config.Config) error {
+	if cfg.TimelapseDuration > 0 {
+		// D-51: Timelapse requires duration
+		if cfg.Duration == 0 {
+			return fmt.Errorf("[ERROR] --timelapse requires --duration: cannot calculate speedup without recording duration")
+		}
+		// D-55: Minimum timelapse duration
+		if cfg.TimelapseDuration < time.Second {
+			return fmt.Errorf("[ERROR] --timelapse must be at least 1s")
+		}
+	}
 	return nil
 }

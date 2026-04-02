@@ -301,3 +301,79 @@ func TestRecordTimelapseFlag_DefaultValue(t *testing.T) {
 		t.Errorf("expected default value '0s', got '%s'", flag.DefValue)
 	}
 }
+
+// TestValidateTimelapseConfig_TimelapseWithoutDuration verifies error when timelapse set without duration.
+func TestValidateTimelapseConfig_TimelapseWithoutDuration(t *testing.T) {
+	cfg := &config.Config{
+		URL:               "rtsp://test.local/stream",
+		Duration:          0,
+		TimelapseDuration: 10 * time.Second,
+	}
+
+	err := validateTimelapseConfig(cfg)
+	if err == nil {
+		t.Error("expected error when timelapse set without duration")
+	}
+	if err != nil && err.Error() != "[ERROR] --timelapse requires --duration: cannot calculate speedup without recording duration" {
+		t.Errorf("unexpected error message: %v", err)
+	}
+}
+
+// TestValidateTimelapseConfig_TimelapseTooShort verifies error when timelapse < 1s.
+func TestValidateTimelapseConfig_TimelapseTooShort(t *testing.T) {
+	cfg := &config.Config{
+		URL:               "rtsp://test.local/stream",
+		Duration:          1 * time.Hour,
+		TimelapseDuration: 500 * time.Millisecond,
+	}
+
+	err := validateTimelapseConfig(cfg)
+	if err == nil {
+		t.Error("expected error when timelapse < 1s")
+	}
+	if err != nil && err.Error() != "[ERROR] --timelapse must be at least 1s" {
+		t.Errorf("unexpected error message: %v", err)
+	}
+}
+
+// TestValidateTimelapseConfig_ValidCombination verifies no error when both valid.
+func TestValidateTimelapseConfig_ValidCombination(t *testing.T) {
+	cfg := &config.Config{
+		URL:               "rtsp://test.local/stream",
+		Duration:          1 * time.Hour,
+		TimelapseDuration: 10 * time.Second,
+	}
+
+	err := validateTimelapseConfig(cfg)
+	if err != nil {
+		t.Errorf("expected no error for valid combination, got: %v", err)
+	}
+}
+
+// TestValidateTimelapseConfig_OnlyDuration verifies no error when only duration set.
+func TestValidateTimelapseConfig_OnlyDuration(t *testing.T) {
+	cfg := &config.Config{
+		URL:               "rtsp://test.local/stream",
+		Duration:          30 * time.Minute,
+		TimelapseDuration: 0,
+	}
+
+	err := validateTimelapseConfig(cfg)
+	if err != nil {
+		t.Errorf("expected no error for duration-only, got: %v", err)
+	}
+}
+
+// TestValidateTimelapseConfig_NeitherSet verifies no error when neither set.
+func TestValidateTimelapseConfig_NeitherSet(t *testing.T) {
+	cfg := &config.Config{
+		URL:               "rtsp://test.local/stream",
+		Duration:          0,
+		TimelapseDuration: 0,
+	}
+
+	err := validateTimelapseConfig(cfg)
+	if err != nil {
+		t.Errorf("expected no error when neither set, got: %v", err)
+	}
+}
