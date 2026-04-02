@@ -1,56 +1,83 @@
+version: "2"
+
 run:
   timeout: 5m
-
-issues:
-  exclude-dirs:
-    - .planning
-    - dist
-    - vendor
-  exclude-rules:
-    # Exclude some linters from running on tests files
-    - path: _test\.go
-      linters:
-        - errcheck
-        - gocritic
-        - gosec
-        - revive
-        - staticcheck
-    # Exclude known linter issues
-    - text: "weakness"
-      linters:
-        - gosec
-    # Allow capitalized error strings with [ERROR] prefix (our convention)
-    - text: "error-strings"
-      linters:
-        - revive
-    # Allow unused parameters in functions that need specific signatures
-    - text: "unused-parameter"
-      linters:
-        - revive
-
-  max-issues-per-linter: 0
-  max-same-issues: 0
 
 linters:
   enable:
     - errcheck
-    - gosimple
     - govet
     - ineffassign
     - staticcheck
     - unused
     - gocritic
-    - gofmt
-    - goimports
     - misspell
     - revive
 
-linters-settings:
-  gofmt:
-    simplify: true
-  goimports:
-    local-prefixes: rtsp-recorder
-  revive:
+  settings:
+    misspell:
+      locale: US
+      ignore-rules:
+        - cancelled
+    revive:
+      rules:
+        - name: exported
+          disabled: true
+
+  exclusions:
+    paths:
+      - .planning
+      - dist
+      - vendor
     rules:
-      - name: exported
-        disabled: true
+      # Exclude some linters from running on tests files
+      - path: _test\.go
+        linters:
+          - errcheck
+          - gocritic
+          - gosec
+          - revive
+          - staticcheck
+      # Exclude known linter issues
+      - text: "weakness"
+        linters:
+          - gosec
+      # Allow capitalized error strings with [ERROR] prefix (our convention)
+      - text: "error strings should not be capitalized"
+        linters:
+          - staticcheck
+          - revive
+      # Allow punctuation in error strings (our style)
+      - text: "error strings should not end with punctuation"
+        linters:
+          - staticcheck
+      # Allow unused parameters in functions that need specific signatures
+      - text: "unused-parameter"
+        linters:
+          - revive
+      # Allow unchecked Close errors on connections (common pattern)
+      - text: 'Error return value of .*\.Close.* is not checked'
+        linters:
+          - errcheck
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+
+  settings:
+    gofmt:
+      simplify: true
+    goimports:
+      local-prefixes:
+        - rtsp-recorder
+
+  exclusions:
+    paths:
+      - .planning
+      - dist
+      - vendor
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
