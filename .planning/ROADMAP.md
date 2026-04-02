@@ -10,7 +10,7 @@
 ## Phases
 
 - [x] **Phase 1: Foundation & Configuration** — CLI scaffolding, config system, and pre-flight validation
-- [ ] **Phase 2: Core Recording Engine** — Record RTSP streams with stop conditions and graceful shutdown **(In Progress)**
+- [x] **Phase 2: Core Recording Engine** — Record RTSP streams with stop conditions and graceful shutdown **(Complete)**
 - [ ] **Phase 3: Resilience & Feedback** — Retry logic, progress display, and edge case handling
 
 ---
@@ -67,12 +67,12 @@ Plans:
 5. Tool displays real-time progress showing bytes recorded, elapsed duration, and current file size during active recording
 6. MP4 file remains valid and playable even if recording ends unexpectedly (unclean shutdown protection)
 
-**Plans:** 2/3 plans complete
+**Plans:** 3/3 plans complete
 
 Plans:
-- [ ] 02-01-PLAN.md — FFmpeg process wrapper with graceful shutdown (Wave 1)
+- [x] 02-01-PLAN.md — FFmpeg process wrapper with graceful shutdown (Wave 1)
 - [x] 02-02-PLAN.md — Stop conditions: signal, duration, file size monitors (Wave 1)
-- [ ] 02-03-PLAN.md — Recording orchestration and progress display (Wave 2)
+- [x] 02-03-PLAN.md — Recording orchestration and progress display (Wave 2)
 
 **Wave Structure:**
 ```
@@ -111,7 +111,7 @@ Wave 2:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation & Configuration | 2/2 | **Complete** | 2025-04-02 |
-| 2. Core Recording Engine | 1/3 | In Progress | — |
+| 2. Core Recording Engine | 3/3 | **Complete** | 2026-04-02 |
 | 3. Resilience & Feedback | 0/2 | Not started | — |
 
 ---
@@ -124,11 +124,11 @@ Wave 2:
 | CONF-02 | Phase 1 | Complete (Plan 01-02) |
 | CONF-03 | Phase 1 | Complete (Plan 01-01) |
 | CONF-04 | Phase 1 | Complete (Plan 01-02) |
-| REC-01 | Phase 2 | Pending |
-| REC-02 | Phase 2 | Pending |
-| REC-03 | Phase 2 | Pending |
-| REC-04 | Phase 2 | Pending |
-| REC-05 | Phase 2 | Pending |
+| REC-01 | Phase 2 | Complete (Plan 02-03) |
+| REC-02 | Phase 2 | Complete (Plan 02-03) |
+| REC-03 | Phase 2 | Complete (Plan 02-03) |
+| REC-04 | Phase 2 | Complete (Plan 02-03) |
+| REC-05 | Phase 2 | Complete (Plan 02-03) |
 | REC-06 | Phase 3 | Pending |
 | REC-07 | Phase 1 | Complete (Plan 01-01) |
 | STOP-01 | Phase 2 | Complete (Plan 02-02) |
@@ -137,7 +137,7 @@ Wave 2:
 | STOP-04 | Phase 2 | Complete (Plan 02-02) |
 | ERR-01 | Phase 1 | Complete (Plan 01-01) |
 | ERR-02 | Phase 3 | Pending |
-| ERR-03 | Phase 2 | Pending |
+| ERR-03 | Phase 2 | Complete (Plan 02-01) |
 | ERR-04 | Phase 3 | Pending |
 
 **Coverage Summary:**
