@@ -64,10 +64,8 @@ func initConfig() {
 		// Use config file from the flag
 		viper.SetConfigFile(cfgFile)
 	} else {
-		// Search for rtsp-recorder.yml in current directory
-		viper.AddConfigPath(".")
-		viper.SetConfigType("yaml")
-		viper.SetConfigName("rtsp-recorder")
+		// Explicitly look for rtsp-recorder.yml to avoid finding the binary
+		viper.SetConfigFile("./rtsp-recorder.yml")
 	}
 
 	// Set environment variable prefix
@@ -85,10 +83,40 @@ func initConfig() {
 	if err := viper.ReadInConfig(); err != nil {
 		// Config file is optional (per D-06), only report if it's not a "not found" error
 		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
+			// Check if it's a file not found error by checking the error string
+			if os.IsNotExist(err) || isFileNotFoundError(err) {
+				// Config file doesn't exist, which is OK
+				return
+			}
 			fmt.Fprintf(os.Stderr, "[ERROR] Failed to read config file: %v\n", err)
 			os.Exit(1)
 		}
 	} else {
 		fmt.Fprintf(os.Stderr, "[INFO] Using config file: %s\n", viper.ConfigFileUsed())
 	}
+}
+
+// isFileNotFoundError checks if an error is related to file not being found
+func isFileNotFoundError(err error) bool {
+	if err == nil {
+		return false
+	}
+	errStr := err.Error()
+	return contains(errStr, "no such file") ||
+		contains(errStr, "cannot find") ||
+		contains(errStr, "not found")
+}
+
+// contains checks if a string contains a substring
+func contains(s, substr string) bool {
+	return len(substr) <= len(s) && (s == substr || len(s) > 0 && containsHelper(s, substr))
+}
+
+func containsHelper(s, substr string) bool {
+	for i := 0; i <= len(s)-len(substr); i++ {
+		if s[i:i+len(substr)] == substr {
+			return true
+		}
+	}
+	return false
 }
