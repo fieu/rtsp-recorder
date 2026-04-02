@@ -53,7 +53,13 @@ Recording: 30m elapsed | Output: ~5s | 360x
 
 ### With Configuration File
 
-Create `rtsp-recorder.yml`:
+Copy the example config file as a starting point:
+
+```bash
+cp rtsp-recorder.example.yml rtsp-recorder.yml
+```
+
+Then edit `rtsp-recorder.yml` with your settings:
 
 ```yaml
 url: rtsp://192.168.1.100:554/stream

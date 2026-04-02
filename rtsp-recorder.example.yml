@@ -1,0 +1,43 @@
+# Example configuration file for rtsp-recorder
+# Copy this file to rtsp-recorder.yml and customize for your setup
+
+# RTSP stream URL to record from
+# Examples:
+#   - Basic: rtsp://192.168.1.100:554/stream
+#   - With auth: rtsp://username:password@camera.local:554/stream
+#   - Tapo cameras: rtsp://192.168.1.100:554/stream1
+url: rtsp://192.168.1.100:554/stream
+
+# Recording duration (stop automatically after this time)
+# Format: duration string like "30m", "1h", "2h30m", "45m"
+duration: 30m
+
+# Maximum file size in MB (stop when file reaches this size)
+# Set to 0 to disable file size limit
+max_file_size: 1024
+
+# Number of retry attempts on connection failure
+# Set to 0 to disable retries
+retry_attempts: 3
+
+# Target output duration for timelapse mode
+# When set, records for 'duration' but outputs condensed video
+# Example: duration=1h + timelapse_duration=10s = 360x speed timelapse
+# Set to 0 to disable timelapse
+timelapse_duration: 0
+
+# Log level: debug, info, warn, error
+# 'debug' shows detailed information including ffmpeg commands
+# 'info' shows standard progress (default)
+# 'warn' shows only warnings and errors
+# 'error' shows only errors
+log_level: info
+
+# Optional: Custom path to ffmpeg binary
+# If not set, searches in system PATH
+# ffmpeg_path: /usr/local/bin/ffmpeg
+
+# Optional: Output filename template
+# Supports date placeholders: %Y (year), %m (month), %d (day), %H (hour), %M (minute), %S (second)
+# Default: recording_%Y-%m-%d-%H-%M-%S.mp4
+# filename_template: "camera_recording_%Y%m%d_%H%M%S.mp4"

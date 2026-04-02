@@ -43,7 +43,7 @@ recording_*
 
 # Config files (user-specific)
 rtsp-recorder.yml
-!example-rtsp-recorder.yml
+!rtsp-recorder.example.yml
 
 # Log files
 *.log
