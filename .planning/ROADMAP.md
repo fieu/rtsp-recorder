@@ -105,7 +105,7 @@ Wave 2:
 **Plans:** 2 plans created
 
 Plans:
-- [ ] 03-01-PLAN.md — RTSP validation & error classification (Wave 1)
+- [x] 03-01-PLAN.md — RTSP validation & error classification (Wave 1)
 - [ ] 03-02-PLAN.md — Retry logic integration (Wave 2)
 
 **Wave Structure:**
@@ -125,7 +125,7 @@ Wave 2 (Depends on Wave 1):
 |-------|----------------|--------|-----------|
 | 1. Foundation & Configuration | 2/2 | **Complete** | 2025-04-02 |
 | 2. Core Recording Engine | 3/3 | **Complete** | 2026-04-02 |
-| 3. Resilience & Feedback | 0/2 | Not started | — |
+| 3. Resilience & Feedback | 1/2 | In Progress | — |
 
 ---
 
@@ -149,9 +149,9 @@ Wave 2 (Depends on Wave 1):
 | STOP-03 | Phase 2 | Complete (Plan 02-02) |
 | STOP-04 | Phase 2 | Complete (Plan 02-02) |
 | ERR-01 | Phase 1 | Complete (Plan 01-01) |
-| ERR-02 | Phase 3 | Pending |
+| ERR-02 | Phase 3 | Complete (Plan 03-01) |
 | ERR-03 | Phase 2 | Complete (Plan 02-01) |
-| ERR-04 | Phase 3 | Pending |
+| ERR-04 | Phase 3 | Complete (Plan 03-01) |
 
 **Coverage Summary:**
 - v1 requirements: 18 total
