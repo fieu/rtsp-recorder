@@ -432,20 +432,20 @@ func TestBuildArgs_NoTimelapseKeepsAudio(t *testing.T) {
 	}
 }
 
-// TestBuildArgs_VideoCopyAlwaysPresent tests -c:v copy is always present
-func TestBuildArgs_VideoCopyAlwaysPresent(t *testing.T) {
+// TestBuildArgs_VideoCodec tests correct video codec selection
+func TestBuildArgs_VideoCodec(t *testing.T) {
 	cfg := config.DefaultConfig()
 
-	// Test with timelapse
+	// Test with timelapse: should use libx264 (re-encode required for filters)
 	cfg.Duration = time.Hour
 	cfg.TimelapseDuration = 10 * time.Second
 	cmd := New(cfg)
 	args := cmd.buildArgs("rtsp://example.com/stream", "/tmp/output.mp4")
-	if !contains(args, "-c:v") || !contains(args, "copy") {
-		t.Error("buildArgs should include -c:v copy with timelapse")
+	if !contains(args, "-c:v") || !contains(args, "libx264") {
+		t.Error("buildArgs should include -c:v libx264 with timelapse (required for video filters)")
 	}
 
-	// Test without timelapse
+	// Test without timelapse: should use copy for efficiency
 	cfg2 := config.DefaultConfig()
 	cfg2.TimelapseDuration = 0
 	cmd2 := New(cfg2)

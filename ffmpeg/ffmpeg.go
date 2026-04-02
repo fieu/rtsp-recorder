@@ -230,10 +230,12 @@ func (c *Cmd) buildArgs(url, outputPath string) []string {
 	if c.timelapseInterval > 1 {
 		filter := fmt.Sprintf("select='not(mod(n,%d))',setpts=N/(FRAME_RATE*TB)", c.timelapseInterval)
 		args = append(args, "-vf", filter)
+		// Video filter requires re-encoding, cannot use -c:v copy
+		args = append(args, "-c:v", "libx264", "-preset", "fast", "-crf", "23")
+	} else {
+		// Normal recording: copy video without re-encoding (efficient)
+		args = append(args, "-c:v", "copy")
 	}
-
-	// Video codec - always copy
-	args = append(args, "-c:v", "copy")
 
 	// Per D-58: Audio handling for timelapse
 	if c.timelapseInterval > 1 {
@@ -247,7 +249,7 @@ func (c *Cmd) buildArgs(url, outputPath string) []string {
 	// Remaining args
 	args = append(args,
 		// Force CFR (constant frame rate) for better seeking
-		"-vsync", "cfr",
+		"-fps_mode", "cfr",
 
 		// D-16: Output format MP4
 		"-f", "mp4",
