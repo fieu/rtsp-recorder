@@ -16,7 +16,7 @@ import (
 // TestRecorder_New tests that New() creates a Recorder with config reference
 func TestRecorder_New(t *testing.T) {
 	cfg := config.DefaultConfig()
-	rec := New(cfg)
+	rec := New(cfg, nil)
 
 	if rec == nil {
 		t.Fatal("New() returned nil")
@@ -29,7 +29,7 @@ func TestRecorder_New(t *testing.T) {
 // TestRecorder_Record_EmptyURL tests that Record() returns error for empty URL
 func TestRecorder_Record_EmptyURL(t *testing.T) {
 	cfg := config.DefaultConfig()
-	rec := New(cfg)
+	rec := New(cfg, nil)
 
 	err := rec.Record("")
 	if err == nil {
@@ -45,7 +45,7 @@ func TestRecorder_Record_GeneratesTimestampFilename(t *testing.T) {
 	cfg := config.DefaultConfig()
 	// Clear template to force timestamp generation
 	cfg.FilenameTemplate = ""
-	rec := New(cfg)
+	rec := New(cfg, nil)
 
 	// This would fail during actual recording due to invalid URL
 	// but we can verify the filename generation happens first
@@ -123,7 +123,7 @@ func TestFormatBitrate(t *testing.T) {
 // TestRecorder_outputPath tests that outputPath is accessible
 func TestRecorder_outputPath(t *testing.T) {
 	cfg := config.DefaultConfig()
-	rec := New(cfg)
+	rec := New(cfg, nil)
 
 	// Initially outputPath should be empty
 	if rec.outputPath != "" {
@@ -134,7 +134,7 @@ func TestRecorder_outputPath(t *testing.T) {
 // TestRecorder_startTime tests that startTime is set during recording
 func TestRecorder_startTime(t *testing.T) {
 	cfg := config.DefaultConfig()
-	rec := New(cfg)
+	rec := New(cfg, nil)
 
 	// Initially startTime should be zero
 	if !rec.startTime.IsZero() {
@@ -146,7 +146,7 @@ func TestRecorder_startTime(t *testing.T) {
 func TestRecorder_WithFilenameTemplate(t *testing.T) {
 	cfg := config.DefaultConfig()
 	cfg.FilenameTemplate = "test_{{.Timestamp}}.mp4"
-	rec := New(cfg)
+	rec := New(cfg, nil)
 
 	// URL validation happens before filename generation
 	// This test verifies config is properly set
@@ -159,7 +159,7 @@ func TestRecorder_WithFilenameTemplate(t *testing.T) {
 func TestRecorder_WithDuration(t *testing.T) {
 	cfg := config.DefaultConfig()
 	cfg.Duration = 30 * time.Minute
-	rec := New(cfg)
+	rec := New(cfg, nil)
 
 	if rec.config.Duration != 30*time.Minute {
 		t.Error("Duration not set correctly in config")
@@ -170,7 +170,7 @@ func TestRecorder_WithDuration(t *testing.T) {
 func TestRecorder_WithMaxFileSize(t *testing.T) {
 	cfg := config.DefaultConfig()
 	cfg.MaxFileSize = 500 // 500 MB
-	rec := New(cfg)
+	rec := New(cfg, nil)
 
 	if rec.config.MaxFileSize != 500 {
 		t.Error("MaxFileSize not set correctly in config")
@@ -250,7 +250,7 @@ func TestDisplayProgress_WithTimelapse(t *testing.T) {
 	cfg.Duration = time.Hour
 	cfg.TimelapseDuration = 10 * time.Second
 
-	rec := New(cfg)
+	rec := New(cfg, nil)
 	rec.ffmpeg = ffmpeg.New(cfg)
 
 	// Verify ffmpeg is initialized with timelapse
@@ -269,7 +269,7 @@ func TestDisplayProgress_WithoutTimelapse(t *testing.T) {
 	cfg := config.DefaultConfig()
 	// No timelapse configured
 
-	rec := New(cfg)
+	rec := New(cfg, nil)
 	rec.ffmpeg = ffmpeg.New(cfg)
 
 	// Verify speedup is 1x (no timelapse)
@@ -286,7 +286,7 @@ func TestDisplayProgress_EstimatedOutput(t *testing.T) {
 	cfg.Duration = time.Hour
 	cfg.TimelapseDuration = 10 * time.Second
 
-	rec := New(cfg)
+	rec := New(cfg, nil)
 	rec.ffmpeg = ffmpeg.New(cfg)
 
 	speedup := rec.ffmpeg.GetSpeedupFactor()
@@ -305,7 +305,7 @@ func TestDisplayProgress_TimelapseInterval(t *testing.T) {
 	cfg.Duration = time.Hour
 	cfg.TimelapseDuration = 10 * time.Second
 
-	rec := New(cfg)
+	rec := New(cfg, nil)
 	rec.ffmpeg = ffmpeg.New(cfg)
 
 	interval := rec.ffmpeg.GetTimelapseInterval()
@@ -321,7 +321,7 @@ func TestTimelapseWithStopConditions_Duration(t *testing.T) {
 	cfg.Duration = 1 * time.Hour
 	cfg.TimelapseDuration = 10 * time.Second
 
-	rec := New(cfg)
+	rec := New(cfg, nil)
 	rec.ffmpeg = ffmpeg.New(cfg)
 
 	// Verify timelapse is properly configured
@@ -343,7 +343,7 @@ func TestTimelapseWithStopConditions_FileSize(t *testing.T) {
 	cfg.TimelapseDuration = 5 * time.Second
 	cfg.MaxFileSize = 1024 // 1GB
 
-	rec := New(cfg)
+	rec := New(cfg, nil)
 	rec.ffmpeg = ffmpeg.New(cfg)
 
 	// Verify both timelapse and file size are configured
@@ -362,7 +362,7 @@ func TestTimelapseWithStopConditions_Signal(t *testing.T) {
 	cfg.Duration = 2 * time.Hour
 	cfg.TimelapseDuration = 20 * time.Second
 
-	rec := New(cfg)
+	rec := New(cfg, nil)
 	rec.ffmpeg = ffmpeg.New(cfg)
 
 	// Verify timelapse is enabled - signal monitor works independently
@@ -379,7 +379,7 @@ func TestPrintFinalSummary_TimelapseEnabled(t *testing.T) {
 	cfg.Duration = 1 * time.Hour
 	cfg.TimelapseDuration = 10 * time.Second
 
-	rec := New(cfg)
+	rec := New(cfg, nil)
 	rec.ffmpeg = ffmpeg.New(cfg)
 
 	// Verify timelapse is configured for summary
@@ -402,7 +402,7 @@ func TestPrintFinalSummary_NoTimelapse(t *testing.T) {
 	cfg := config.DefaultConfig()
 	// No timelapse configured
 
-	rec := New(cfg)
+	rec := New(cfg, nil)
 	rec.ffmpeg = ffmpeg.New(cfg)
 
 	// Verify no timelapse (speedup = 1x)
@@ -440,7 +440,7 @@ func TestPrintFinalSummary_SpeedupRounding(t *testing.T) {
 	cfg.Duration = 1 * time.Hour
 	cfg.TimelapseDuration = 10 * time.Second
 
-	rec := New(cfg)
+	rec := New(cfg, nil)
 	rec.ffmpeg = ffmpeg.New(cfg)
 
 	speedup := rec.ffmpeg.GetSpeedupFactor()
