@@ -120,7 +120,7 @@ tasks:
     desc: Build release binaries with version info
     vars:
       VERSION:
-        sh: git describe --tags --always --dirty 2>/dev/null || echo "dev"
+        sh: git describe --tags --abbrev=0 2>/dev/null || echo "dev"
       DATE:
         sh: date -u '+%Y-%m-%d_%H:%M:%S'
     cmds:
