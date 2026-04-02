@@ -82,9 +82,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | STOP-03 | Phase 2 | Pending |
 | STOP-04 | Phase 2 | Pending |
 | ERR-01 | Phase 1 | Pending |
-| ERR-02 | Phase 1 | Pending |
+| ERR-02 | Phase 3 | Pending |
 | ERR-03 | Phase 2 | Pending |
-| ERR-04 | Phase 2 | Pending |
+| ERR-04 | Phase 3 | Pending |
 
 **Coverage:**
 - v1 requirements: 18 total
@@ -93,4 +93,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2025-04-02*
-*Last updated: 2025-04-02 after initial definition*
+*Last updated: 2025-04-02 after roadmap creation*
