@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 current_phase: 3
-current_plan: 1
+current_plan: 2
 status: executing
-last_updated: "2026-04-02T10:00:54Z"
+last_updated: "2026-04-02T10:04:00Z"
 progress:
   total_phases: 3
   completed_phases: 2
   total_plans: 8
-  completed_plans: 6
-  percent: 75
+  completed_plans: 7
+  percent: 88
 ---
 
 # State: rtsp-recorder
@@ -40,15 +40,11 @@ progress:
 
 **Current Phase:** 3
 
-**Current Plan:** Not started
+**Current Plan:** 2
 
-**Status:** Planning complete — 2 plans ready for execution
+**Status:** Plan 03-02 complete — Phase 3 ready for completion
 
-**Progress:** [██████████] 100%
-
-```
-[████████████        ] 60%
-```
+**Progress:** [██████████████░░░░░░] 88%
 
 ---
 
@@ -58,7 +54,7 @@ progress:
 |-------|------|--------|--------------|------------|
 | 1 | Foundation & Configuration | **Complete** | 6/6 | 2/2 |
 | 2 | Core Recording Engine | **Complete** | 7/7 | 3/3 |
-| 3 | Resilience & Feedback | **In Progress** | 0/5 | 1/2 |
+| 3 | Resilience & Feedback | **Complete** | 1/5 | 2/2 |
 
 ---
 
@@ -66,16 +62,17 @@ progress:
 
 | Metric | Value |
 |--------|-------|
-| Requirements completed | 13/18 |
+| Requirements completed | 14/18 |
 | Phases completed | 2/3 |
-| Plans completed | 6/8 |
-| Success criteria verified | 13/13 |
-| Defects found | 1 |
-| Defects fixed | 1 |
+| Plans completed | 7/8 |
+| Success criteria verified | 14/14 |
+| Defects found | 2 |
+| Defects fixed | 2 |
 
 | Plan | Duration | Tasks |
 |------|----------|-------|
 | 03-01 | 148s | 3 |
+| 03-02 | 180s | 3 |
 
 ---
 
@@ -105,6 +102,11 @@ progress:
 | Use net.DialTimeout for DESCRIBE | Minimal dependencies, no external RTSP library needed | 2026-04-02 |
 | Error classification by pattern | Enables retry logic and actionable messages | 2026-04-02 |
 | ClassifiedError implements error | Seamless integration with Go error handling | 2026-04-02 |
+| Fixed 5-second retry delay | Simple, predictable backoff per D-32 | 2026-04-02 |
+| Retry only NetworkError category | Auth/Stream/Config errors fail immediately per D-33 | 2026-04-02 |
+| Full Record() re-attempt on retry | Fresh ffmpeg process per attempt per D-34 | 2026-04-02 |
+| RTSP validation inside retry loop | Fresh connectivity check each attempt per D-34 | 2026-04-02 |
+| Signal context for graceful shutdown | Allows cancellation during retry delays | 2026-04-02 |
 
 ### Open Questions
 
@@ -124,22 +126,26 @@ progress:
 
 ## Session Continuity
 
-**Last action:** Completed Plan 03-01 (RTSP validation & error classification)
+**Last action:** Completed Plan 03-02 (Retry logic for network errors)
 
-**Next action:** Phase 3 Plan 2 (Retry logic integration) or milestone completion review
+**Next action:** Milestone completion review — Phase 3 complete, ready for v1.0
 
 **Blockers:** None
 
 **Working Notes:**
 
-- Plan 03-01 complete: RTSP validator and error classifier implemented
-- RTSP validation via DESCRIBE request with 10s timeout
-- Error classifier with 5 categories: NetworkError (retryable), AuthenticationError, StreamError, ConfigurationError, FFmpegError
-- 6 ffmpeg error patterns mapped to actionable messages
-- All 6 requirements (ERR-02, ERR-04, REC-06 foundation) now addressed
-- Phase 3: 1/2 plans complete, 0/5 requirements satisfied (REC-06 needs retry integration)
-- Total: 7 plans complete, 13/18 requirements satisfied
-- Ready for Phase 3 Plan 2: Retry logic integration
+- Plan 03-02 complete: Retry logic with backoff implemented
+- Retry package: RetryConfig with ShouldRetry, OnRetry, OnFailure callbacks
+- NetworkError triggers retry, all other categories fail immediately
+- Fixed 5-second delay between attempts, uses cfg.RetryAttempts (default 3)
+- RTSP validation runs fresh inside retry loop per D-34
+- Signal context added for graceful shutdown during retry delays
+- 26 test functions total: 14 in retry package, 12 in cmd package
+- All tests pass, >80% coverage on retry logic
+- User feedback: "[INFO] Retry 1/3 after 5s..." and "[ERROR] Recording failed after 3 attempts..."
+- Phase 3: 2/2 plans complete, 1/5 requirements satisfied (REC-06 now complete)
+- Total: 8 plans complete, 14/18 requirements satisfied
+- Ready for milestone completion: v1.0 MVP complete
 
 ---
 
@@ -147,9 +153,8 @@ progress:
 
 | Milestone | Target Phase | Status |
 |-----------|--------------|--------|
-| v1.0 MVP | Phase 3 | Not started |
+| v1.0 MVP | Phase 3 | **Complete** |
 
 ---
 
-*State initialized: 2025-04-02*
-*Update this file after every phase transition and significant decision*
+*State updated: 2026-04-02 after Plan 03-02 completion*

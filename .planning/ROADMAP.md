@@ -11,7 +11,7 @@
 
 - [x] **Phase 1: Foundation & Configuration** — CLI scaffolding, config system, and pre-flight validation
 - [x] **Phase 2: Core Recording Engine** — Record RTSP streams with stop conditions and graceful shutdown **(Complete)**
-- [ ] **Phase 3: Resilience & Feedback** — Retry logic, progress display, and edge case handling
+- [x] **Phase 3: Resilience & Feedback** — Retry logic, progress display, and edge case handling **(Complete)**
 
 ---
 
@@ -21,7 +21,7 @@
 |-------|------|------|--------------|------------------|
 | 1 | Foundation & Configuration | Tool can be configured and validated before recording | Complete    | 2026-04-02 |
 | 2 | Core Recording Engine | User can record RTSP streams with flexible stop conditions | Complete    | 2026-04-02 |
-| 3 | Resilience & Feedback | Recording is robust with retry, progress visibility, and clean error handling | 5 | 4 |
+| 3 | Resilience & Feedback | Recording is robust with retry, progress visibility, and clean error handling | Complete | 2026-04-02 |
 
 ---
 
@@ -102,11 +102,11 @@ Wave 2:
 3. Tool provides meaningful, specific error messages for common ffmpeg failures (connection refused, 404, invalid stream data) instead of just exit codes
 4. Tool validates the RTSP stream is accessible (via DESCRIBE request) before starting recording to fail fast on bad URLs
 
-**Plans:** 2 plans created
+**Plans:** 2/2 plans complete
 
 Plans:
 - [x] 03-01-PLAN.md — RTSP validation & error classification (Wave 1)
-- [ ] 03-02-PLAN.md — Retry logic integration (Wave 2)
+- [x] 03-02-PLAN.md — Retry logic integration (Wave 2)
 
 **Wave Structure:**
 ```
@@ -125,7 +125,7 @@ Wave 2 (Depends on Wave 1):
 |-------|----------------|--------|-----------|
 | 1. Foundation & Configuration | 2/2 | **Complete** | 2025-04-02 |
 | 2. Core Recording Engine | 3/3 | **Complete** | 2026-04-02 |
-| 3. Resilience & Feedback | 1/2 | In Progress | — |
+| 3. Resilience & Feedback | 2/2 | **Complete** | 2026-04-02 |
 
 ---
 
@@ -142,7 +142,7 @@ Wave 2 (Depends on Wave 1):
 | REC-03 | Phase 2 | Complete (Plan 02-03) |
 | REC-04 | Phase 2 | Complete (Plan 02-03) |
 | REC-05 | Phase 2 | Complete (Plan 02-03) |
-| REC-06 | Phase 3 | Pending |
+| REC-06 | Phase 3 | Complete (Plan 03-02) |
 | REC-07 | Phase 1 | Complete (Plan 01-01) |
 | STOP-01 | Phase 2 | Complete (Plan 02-02) |
 | STOP-02 | Phase 2 | Complete (Plan 02-02) |
