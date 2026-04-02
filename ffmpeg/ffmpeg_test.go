@@ -295,6 +295,58 @@ func TestCalculateFrameInterval_NeverReturnsNegative(t *testing.T) {
 	}
 }
 
+// TestTimelapseInterval_FieldExists tests that Cmd struct has timelapseInterval field
+func TestTimelapseInterval_FieldExists(t *testing.T) {
+	cfg := config.DefaultConfig()
+	cmd := New(cfg)
+
+	// Verify we can check the interval via getter (tests that field exists and is accessible)
+	interval := cmd.GetTimelapseInterval()
+	if interval != 1 {
+		t.Errorf("New() should initialize timelapseInterval to 1 by default, got %d", interval)
+	}
+}
+
+// TestTimelapseInterval_DefaultValue tests that timelapseInterval defaults to 1 (keep all frames)
+func TestTimelapseInterval_DefaultValue(t *testing.T) {
+	cfg := config.DefaultConfig()
+	cmd := New(cfg)
+
+	interval := cmd.GetTimelapseInterval()
+	if interval != 1 {
+		t.Errorf("Default timelapseInterval should be 1 (keep all frames), got %d", interval)
+	}
+}
+
+// TestTimelapseInterval_CalculatedFromConfig tests that New() calculates interval from config
+func TestTimelapseInterval_CalculatedFromConfig(t *testing.T) {
+	cfg := config.DefaultConfig()
+	cfg.Duration = time.Hour
+	cfg.TimelapseDuration = 10 * time.Second
+
+	cmd := New(cfg)
+
+	// Speedup = 1h / 10s = 360x
+	interval := cmd.GetTimelapseInterval()
+	if interval != 360 {
+		t.Errorf("TimelapseInterval should be calculated as 360 (1h/10s), got %d", interval)
+	}
+}
+
+// TestTimelapseInterval_ZeroTimelapseDefaultsToOne tests zero timelapse duration defaults to 1
+func TestTimelapseInterval_ZeroTimelapseDefaultsToOne(t *testing.T) {
+	cfg := config.DefaultConfig()
+	cfg.Duration = time.Hour
+	cfg.TimelapseDuration = 0 // Disabled
+
+	cmd := New(cfg)
+
+	interval := cmd.GetTimelapseInterval()
+	if interval != 1 {
+		t.Errorf("TimelapseInterval should be 1 when timelapse disabled, got %d", interval)
+	}
+}
+
 // Test Stop() is idempotent - safe to call multiple times
 func TestStop_Idempotent(t *testing.T) {
 	cfg := config.DefaultConfig()

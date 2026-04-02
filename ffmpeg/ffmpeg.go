@@ -55,22 +55,30 @@ func CalculateFrameInterval(recordDuration, timelapseDuration time.Duration, fra
 // It provides graceful shutdown via signal escalation and proper
 // process cleanup to prevent zombies and ensure MP4 finalization.
 type Cmd struct {
-	cmd        *exec.Cmd      // The underlying ffmpeg command
-	config     *config.Config // Reference to configuration settings
-	stderr     bytes.Buffer   // Captured stderr for error analysis
-	mu         sync.Mutex     // Thread-safe state access
-	started    bool           // Track if process has been started
-	outputPath string         // Track output path for cleanup
+	cmd               *exec.Cmd      // The underlying ffmpeg command
+	config            *config.Config // Reference to configuration settings
+	stderr            bytes.Buffer   // Captured stderr for error analysis
+	mu                sync.Mutex     // Thread-safe state access
+	started           bool           // Track if process has been started
+	outputPath        string         // Track output path for cleanup
+	timelapseInterval int            // Frame selection interval (1 = keep all, N = keep every Nth)
 }
 
 // New creates a new Cmd instance with the given configuration.
 // The config provides settings like ffmpeg path, timeout values, etc.
+// Per D-56: Interval is calculated at initialization and used in buildArgs().
 func New(cfg *config.Config) *Cmd {
+	interval := 1 // Default: keep all frames
+	if cfg.TimelapseDuration > 0 && cfg.Duration > 0 {
+		interval = CalculateFrameInterval(cfg.Duration, cfg.TimelapseDuration, 30.0)
+	}
+
 	return &Cmd{
-		config:     cfg,
-		stderr:     bytes.Buffer{},
-		started:    false,
-		outputPath: "",
+		config:            cfg,
+		stderr:            bytes.Buffer{},
+		started:           false,
+		outputPath:        "",
+		timelapseInterval: interval,
 	}
 }
 
@@ -269,6 +277,14 @@ func (c *Cmd) GetExitCode() int {
 	}
 
 	return c.cmd.ProcessState.ExitCode()
+}
+
+// GetTimelapseInterval returns the frame selection interval.
+// Returns 1 if timelapse is disabled (all frames kept).
+func (c *Cmd) GetTimelapseInterval() int {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	return c.timelapseInterval
 }
 
 // waitAndParseError waits for the process to exit and parses the error.
