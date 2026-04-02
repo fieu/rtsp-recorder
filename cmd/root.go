@@ -12,9 +12,15 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
+	"rtsp-recorder/logger"
 )
 
 var cfgFile string
+
+// Logger is the global structured logger accessible throughout the application.
+// It is initialized in initConfig() after configuration is loaded.
+var Logger *zap.Logger
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -56,6 +62,11 @@ func init() {
 
 	// Global flags available to all subcommands
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file path (default: rtsp-recorder.yml in current directory)")
+
+	// Log level flag (per D-67: no shorthand to avoid confusion with timelapse -l)
+	rootCmd.PersistentFlags().String("log-level", "info", "Log level (debug, info, warn, error)")
+	viper.BindPFlag("log_level", rootCmd.PersistentFlags().Lookup("log-level"))
+	viper.SetDefault("log_level", "info")
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -86,13 +97,29 @@ func initConfig() {
 			// Check if it's a file not found error by checking the error string
 			if os.IsNotExist(err) || isFileNotFoundError(err) {
 				// Config file doesn't exist, which is OK
-				return
+				// Continue to initialize logger with defaults
+			} else {
+				fmt.Fprintf(os.Stderr, "[ERROR] Failed to read config file: %v\n", err)
+				os.Exit(1)
 			}
-			fmt.Fprintf(os.Stderr, "[ERROR] Failed to read config file: %v\n", err)
-			os.Exit(1)
 		}
 	} else {
-		fmt.Fprintf(os.Stderr, "[INFO] Using config file: %s\n", viper.ConfigFileUsed())
+		// Config file loaded - will log after logger is initialized
+	}
+
+	// Initialize logger after config is loaded (per D-73)
+	// This ensures log level can be set via flag, env, or config
+	logLevel := viper.GetString("log_level")
+	var err error
+	Logger, err = logger.New(logLevel)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "[ERROR] Invalid log level: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Log config file usage after logger is initialized
+	if viper.ConfigFileUsed() != "" {
+		Logger.Info("Using config file", zap.String("path", viper.ConfigFileUsed()))
 	}
 }
 
