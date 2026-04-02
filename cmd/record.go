@@ -8,6 +8,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/spf13/cobra"
 	"rtsp-recorder/config"
@@ -82,6 +83,13 @@ func runRecord(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("[ERROR] Cannot start recording: FFmpeg not available")
 	}
 	fmt.Printf("[INFO] FFmpeg found: %s (version %s)\n", path, version)
+
+	// Validate RTSP stream is accessible before starting (ERR-02)
+	fmt.Println("[INFO] Validating RTSP stream...")
+	if err := validator.ValidateRTSP(cfg.URL, 10*time.Second); err != nil {
+		return err // Already formatted with [ERROR] prefix
+	}
+	fmt.Println("[INFO] RTSP stream validated successfully")
 
 	// Display configuration being used
 	fmt.Println("\n[INFO] Recording configuration:")

@@ -22,12 +22,12 @@ import (
 	"io"
 	"os"
 	"os/exec"
-	"strings"
 	"sync"
 	"syscall"
 	"time"
 
 	"rtsp-recorder/config"
+	rrerrors "rtsp-recorder/internal/errors"
 )
 
 // Cmd wraps an ffmpeg exec.Cmd with lifecycle management.
@@ -261,6 +261,7 @@ func (c *Cmd) waitAndParseError() error {
 
 // parseExitError analyzes the exit error and stderr content to provide
 // meaningful error messages per PITFALLS.md §Pitfall 6.
+// Uses internal/errors.ClassifyError for consistent error classification.
 func (c *Cmd) parseExitError(err error) error {
 	if err == nil {
 		return nil
@@ -269,24 +270,14 @@ func (c *Cmd) parseExitError(err error) error {
 	var exitErr *exec.ExitError
 	if errors.As(err, &exitErr) {
 		stderr := c.stderr.String()
+		exitCode := exitErr.ExitCode()
 
-		// Common error pattern detection for better user feedback
-		switch {
-		case strings.Contains(stderr, "Connection refused"):
-			return fmt.Errorf("RTSP connection refused: %w", err)
-		case strings.Contains(stderr, "404 Not Found"):
-			return fmt.Errorf("RTSP stream not found (404): %w", err)
-		case strings.Contains(stderr, "Invalid data found"):
-			return fmt.Errorf("stream format not supported: %w", err)
-		case strings.Contains(stderr, "No such file or directory"):
-			return fmt.Errorf("output path error: %w", err)
-		case exitErr.ExitCode() == 255:
-			// Exit code 255 often indicates network/connection issues
-			return fmt.Errorf("ffmpeg network error (exit 255): %s", stderr)
-		default:
-			return fmt.Errorf("ffmpeg failed (exit %d): %s", exitErr.ExitCode(), stderr)
-		}
+		// Use error classifier for consistent, actionable messages
+		classified := rrerrors.ClassifyError(stderr, exitCode)
+		classified.Original = err
+
+		return classified
 	}
 
-	return fmt.Errorf("ffmpeg process error: %w", err)
+	return fmt.Errorf("[ERROR] FFmpeg process error: %w", err)
 }
