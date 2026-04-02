@@ -118,6 +118,8 @@ tasks:
 
   build:release:
     desc: Build release binaries with version info
+    deps:
+      - clean:dist
     vars:
       VERSION:
         sh: git describe --tags --abbrev=0 2>/dev/null || echo "dev"
