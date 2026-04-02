@@ -102,7 +102,20 @@ Wave 2:
 3. Tool provides meaningful, specific error messages for common ffmpeg failures (connection refused, 404, invalid stream data) instead of just exit codes
 4. Tool validates the RTSP stream is accessible (via DESCRIBE request) before starting recording to fail fast on bad URLs
 
-**Plans:** TBD
+**Plans:** 2 plans created
+
+Plans:
+- [ ] 03-01-PLAN.md — RTSP validation & error classification (Wave 1)
+- [ ] 03-02-PLAN.md — Retry logic integration (Wave 2)
+
+**Wave Structure:**
+```
+Wave 1 (Independent):
+  03-01 (RTSP validation & error classification)
+
+Wave 2 (Depends on Wave 1):
+  03-02 (Retry logic integration - uses error classifier from 03-01)
+```
 
 ---
 
