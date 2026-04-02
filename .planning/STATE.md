@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 7
-current_plan: Not started
+current_phase: 8
+current_plan: 08-01-complete
 status: completed
-last_updated: "2026-04-02T16:24:52.110Z"
+last_updated: "2026-04-02T17:00:00.000Z"
 progress:
-  total_phases: 7
-  completed_phases: 5
-  total_plans: 14
-  completed_plans: 13
-  percent: 93
+  total_phases: 8
+  completed_phases: 7
+  total_plans: 15
+  completed_plans: 15
+  percent: 100
 ---
 
 # State: rtsp-recorder
@@ -38,13 +38,13 @@ progress:
 
 ## Current Position
 
-**Current Phase:** 7
+**Current Phase:** 8
 
-**Current Plan:** Not started
+**Current Plan:** 08-01 (Complete)
 
-**Status:** Milestone complete
+**Status:** Complete
 
-**Progress:** [██████████░] 93%
+**Progress:** [██████████] 100%
 
 ---
 
@@ -57,7 +57,8 @@ progress:
 | 3 | Resilience & Feedback | **Complete** | 5/5 | 2/2 |
 | 4 | Timelapse Recording | **Complete** | 3/3 | 3/3 |
 | 6 | Structured Logging with Zap | **Complete** | 3/3 | 2/2 |
-| 7 | Colored Logging with Zerolog | **In Progress** | 2/3 | 1/2 |
+| 7 | Colored Logging with Zerolog | **Complete** | 3/3 | 2/2 |
+| 8 | Periodic Progress Logging | **Complete** | 4/4 | 1/1 |
 
 ---
 
@@ -87,6 +88,7 @@ progress:
 | 06-02 | 20m | 5 |
 
 ---
+| Phase 08 P01 | 300 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -138,6 +140,12 @@ progress:
 | Add --no-color flag | Allow users to disable colors even in TTY per D-88 | 2026-04-02 |
 | Respect NO_COLOR environment variable | Follow standard convention for color disable per D-89 | 2026-04-02 |
 
+- [Phase 08]: D-96: Remove live progress bar with \r carriage return - replaced with periodic structured logging
+- [Phase 08]: D-97: Periodic log messages every X seconds using time.Ticker
+- [Phase 08]: D-99: Config field progress_interval with 10s default
+- [Phase 08]: D-104: Structured logging with zerolog fields (elapsed, bytes, size, bitrate, speedup)
+- [Phase 08]: D-110: Log immediately at start (0 seconds) before ticker loop
+
 ### Open Questions
 
 (None yet)
@@ -156,24 +164,24 @@ progress:
 
 ## Session Continuity
 
-**Last action:** Completed Plan 07-01 (Replace zap with zerolog for colored logging)
+**Last action:** Completed Plan 08-01 (Periodic progress logging with zerolog)
 
-**Next action:** All Phase 7 requirements complete - colored logging with zerolog implemented
+**Next action:** All Phase 8 requirements complete - periodic structured logging implemented
 
 **Blockers:** None
 
 **Working Notes:**
 
-- Plan 07-01 complete: Migrated from zap to zerolog
-- Dependencies: zerolog v1.35.0, go-isatty v0.0.20 added; zap removed
-- logger/logger.go: Zerolog with TTY detection, ConsoleWriter for colors, JSON for non-TTY
-- cmd/root.go: --no-color flag added, NO_COLOR env var support
-- All log calls migrated: zap.String → .Str(), zap.Int → .Int(), zap.Error → .Err()
-- Logger type changed from *zap.Logger to zerolog.Logger (value type)
-- All tests updated and passing
-- Build succeeds with no zap references
-- Phase 7 Plan 1 complete - effectively all of Phase 7 done (combined 07-01 and 07-02)
+- Plan 08-01 complete: Replaced \r progress bar with periodic structured logging
+- ProgressInterval config field added with 10s default (configurable, 0=disabled)
+- --progress-interval (-p) flag registered and bound to viper
+- displayProgress() rewritten to use time.Ticker with configurable interval
+- logProgress() helper uses zerolog structured fields: elapsed, bytes, size, bitrate, speedup, output_duration
+- Logs immediately at start (0 seconds) per D-110
+- All fmt.Printf("\r...") calls removed per D-96
+- Build succeeds, all success criteria met
+- Phase 8 complete - all 4 requirements (P8-01, P8-02, P8-03, P8-04) satisfied
 
 ---
 
-*State updated: 2026-04-02 after Plan 06-01 completion*
+*State updated: 2026-04-02 after Plan 08-01 completion*

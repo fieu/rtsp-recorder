@@ -235,16 +235,19 @@ Plans:
 
 **Depends on:** Phase 2 (Core Recording Engine)
 
-**Requirements:** LOG-06, LOG-07
+**Requirements:** P8-01, P8-02, P8-03, P8-04
 
 **Success Criteria** (what must be TRUE):
 
-1. Live progress bar (\r overwrite) is removed
-2. Periodic log messages appear every X seconds (default 10s, configurable)
-3. Each log message shows current recording stats (bytes, duration, bitrate)
-4. Configurable via YAML config: `progress_interval` field
+1. ✓ Live progress bar (\r overwrite) is removed
+2. ✓ Periodic log messages appear every X seconds (default 10s, configurable)
+3. ✓ Each log message shows current recording stats (bytes, duration, bitrate, timelapse fields)
+4. ✓ Configurable via YAML config: `progress_interval` field or `--progress-interval` flag
 
-**Plans:** TBD
+**Plans:** 1/1 complete
+
+Plans:
+- [x] 08-01-PLAN.md — Replace \r progress bar with periodic structured logging (Wave 1)
 
 ---
 
@@ -259,7 +262,7 @@ Plans:
 | 5. Documentation & README | 1/1 | **Complete** | 2026-04-02 |
 | 6. Structured Logging with Zap | 2/2 | Complete    | 2026-04-02 |
 | 7. Colored Logging with Zerolog | 1/1 | Complete    | 2026-04-02 |
-| 8. Periodic Progress Logging | 0/TBD | Not started | — |
+| 8. Periodic Progress Logging | 1/1 | Complete    | 2026-04-02 |
 
 ---
 
@@ -294,12 +297,17 @@ Plans:
 | LOG-03 | Phase 6 | Complete (Plan 06-01) |
 | LOG-04 | Phase 7 | Complete (Plan 07-01) |
 | LOG-05 | Phase 7 | Complete (Plan 07-01) |
+| P8-01 | Phase 8 | Complete (Plan 08-01) |
+| P8-02 | Phase 8 | Complete (Plan 08-01) |
+| P8-03 | Phase 8 | Complete (Plan 08-01) |
+| P8-04 | Phase 8 | Complete (Plan 08-01) |
 
 **Coverage Summary:**
 - v1.0 requirements: 18 total (Complete)
 - v1.1 requirements: 3 total (Complete)
 - v1.2 requirements: 2 total (Complete)
-- Mapped to phases: 23 ✓
+- Phase 8 requirements: 4 total (Complete)
+- Mapped to phases: 27 ✓
 - Unmapped: 0 ✓
 
 ---
