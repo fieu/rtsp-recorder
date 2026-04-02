@@ -94,6 +94,7 @@ func initConfig() {
 	viper.SetDefault("retry_attempts", 3)
 	viper.SetDefault("ffmpeg_path", "ffmpeg")
 	viper.SetDefault("filename_template", "recording_{{.Timestamp}}.mp4")
+	viper.SetDefault("progress_interval", 10*time.Second) // 10s default per D-100
 
 	// If a config file is found, read it in
 	if err := viper.ReadInConfig(); err != nil {

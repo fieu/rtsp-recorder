@@ -42,6 +42,9 @@ type Config struct {
 
 	// LogLevel is the logging level: debug, info, warn, error
 	LogLevel string `mapstructure:"log_level"`
+
+	// ProgressInterval is the interval for progress log messages (0 = disabled)
+	ProgressInterval time.Duration `mapstructure:"progress_interval"`
 }
 
 // Load reads configuration from Viper and returns a Config struct.
@@ -89,6 +92,7 @@ func DefaultConfig() *Config {
 		FFmpegPath:        "ffmpeg",
 		FilenameTemplate:  "recording_{{.Timestamp}}.mp4",
 		LogLevel:          "info",
+		ProgressInterval:  10 * time.Second, // Default 10s per D-100
 	}
 }
 
@@ -127,4 +131,8 @@ func BindFlags(cmd *cobra.Command) {
 	// Filename template flag
 	cmd.Flags().StringP("filename-template", "t", "", "Output filename template (default: recording_{{.Timestamp}}.mp4)")
 	viper.BindPFlag("filename_template", cmd.Flags().Lookup("filename-template"))
+
+	// Progress interval flag (10s default, 0=disabled per D-100, D-102)
+	cmd.Flags().DurationP("progress-interval", "p", 10*time.Second, "Progress log interval (e.g., 10s, 30s, 1m, 0=disabled)")
+	viper.BindPFlag("progress_interval", cmd.Flags().Lookup("progress-interval"))
 }
