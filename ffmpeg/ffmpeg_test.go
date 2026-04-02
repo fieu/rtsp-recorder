@@ -43,15 +43,20 @@ func TestBuildArgs_IncludesTCPTransport(t *testing.T) {
 	}
 }
 
-// Test 3: Cmd.Start() should include -c copy for stream copy per D-14
+// Test 3: Cmd.Start() should copy video but re-encode audio to AAC per D-14
+// Video is copied for efficiency, audio re-encoded for MP4 compatibility
 func TestBuildArgs_IncludesStreamCopy(t *testing.T) {
 	cfg := config.DefaultConfig()
 	cmd := New(cfg)
 
 	args := cmd.buildArgs("rtsp://example.com/stream", "/tmp/output.mp4")
 
-	if !contains(args, "-c") || !contains(args, "copy") {
-		t.Error("buildArgs should include -c copy per D-14")
+	// Check video copy (-c:v copy) and audio re-encode (-c:a aac)
+	if !contains(args, "-c:v") || !contains(args, "copy") {
+		t.Error("buildArgs should include -c:v copy for video stream copy per D-14")
+	}
+	if !contains(args, "-c:a") || !contains(args, "aac") {
+		t.Error("buildArgs should include -c:a aac for audio MP4 compatibility")
 	}
 }
 
