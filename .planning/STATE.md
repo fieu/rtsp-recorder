@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 4
-current_plan: Not started
-status: completed
-last_updated: "2026-04-02T10:25:40.564Z"
+current_phase: 6
+current_plan: 01
+status: in-progress
+last_updated: "2026-04-02T15:00:00.000Z"
 progress:
-  total_phases: 4
-  completed_phases: 4
-  total_plans: 10
-  completed_plans: 10
-  percent: 100
+  total_phases: 6
+  completed_phases: 5
+  total_plans: 11
+  completed_plans: 11
+  percent: 95
 ---
 
 # State: rtsp-recorder
@@ -55,7 +55,8 @@ progress:
 | 1 | Foundation & Configuration | **Complete** | 6/6 | 2/2 |
 | 2 | Core Recording Engine | **Complete** | 7/7 | 3/3 |
 | 3 | Resilience & Feedback | **Complete** | 5/5 | 2/2 |
-| 4 | Timelapse Recording | **In Progress** | 3/3 | 3/3 |
+| 4 | Timelapse Recording | **Complete** | 3/3 | 3/3 |
+| 6 | Structured Logging with Zap | **In Progress** | 2/3 | 1/2 |
 
 ---
 
@@ -63,10 +64,10 @@ progress:
 
 | Metric | Value |
 |--------|-------|
-| Requirements completed | 17/21 |
-| Phases completed | 3/4 |
-| Plans completed | 10/10 |
-| Success criteria verified | 18/18 |
+| Requirements completed | 23/24 |
+| Phases completed | 5/6 |
+| Plans completed | 11/12 |
+| Success criteria verified | 21/21 |
 | Defects found | 2 |
 | Defects fixed | 2 |
 
@@ -77,9 +78,9 @@ progress:
 | 04-01 | ~300s | 3 |
 | 04-02 | 15m | 4 |
 | 04-03 | 15m | 4 |
+| 06-01 | 15m | 3 |
 
 ---
-| Phase 04 P03 | 15m | 4 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -118,6 +119,12 @@ progress:
 | Minimum 1s timelapse duration | Prevent invalid ultra-short outputs per D-55 | 2026-04-02 |
 | Timelapse filter: select+setpts | FFmpeg filter chain for frame dropping per D-56 | 2026-04-02 |
 | Timelapse drops audio | Simpler approach, typical for timelapse videos per D-58 | 2026-04-02 |
+| Use Uber's zap library | Industry standard for structured Go logging per D-61 | 2026-04-02 |
+| Development config for human-readable output | CLI tools need readable logs, not JSON per D-62 | 2026-04-02 |
+| Default log level: info | Production-appropriate default, not too verbose per D-64 | 2026-04-02 |
+| --log-level flag (no shorthand) | Avoid confusion with timelapse -l flag per D-67 | 2026-04-02 |
+| Global Logger variable for app-wide access | Simplest pattern for CLI tool architecture per D-74 | 2026-04-02 |
+| Initialize logger early in initConfig() | Ensures all logging uses zap from startup per D-73 | 2026-04-02 |
 
 ### Open Questions
 
@@ -137,23 +144,23 @@ progress:
 
 ## Session Continuity
 
-**Last action:** Completed Plan 04-03 (Timelapse progress display and stop condition integration)
+**Last action:** Completed Plan 06-01 (Zap logger setup with config integration)
 
-**Next action:** Phase 4 completion review / Transition to Phase 5
+**Next action:** Execute Plan 06-02 (Replace fmt.Println with structured logging)
 
 **Blockers:** None
 
 **Working Notes:**
 
-- Plan 04-03 complete: Timelapse progress display and stop condition integration
-- displayProgress(): Shows "[INFO] Recording: X elapsed | Output: ~Y | Zx speed | bytes | bitrate"
-- runRecord(): Shows "Timelapse: 360x speed (1h -> 10s)" at recording start
-- printFinalSummary(): Shows real duration, output duration, and speedup when timelapse enabled
-- Stop conditions (Ctrl+C, duration, file size) verified compatible with timelapse
-- 14 new tests added, all passing (58 recorder tests, 22 cmd tests)
-- Phase 4 Timelapse Recording feature is complete
-- All 3 plans in Phase 4 complete: 04-01 (config), 04-02 (ffmpeg filter), 04-03 (progress/stop)
+- Plan 06-01 complete: Zap logger foundation with config integration
+- Created logger/logger.go with New() constructor and ParseLevel() helper
+- Added LogLevel field to config.Config struct with "info" default
+- Added --log-level CLI flag with viper binding (no shorthand per D-67)
+- Global cmd.Logger variable initialized in initConfig()
+- Config precedence verified: flag > env > config > default
+- go.uber.org/zap v1.27.1 dependency added to go.mod
+- Phase 6 Wave 1 complete, ready for Wave 2 (replace logging across codebase)
 
 ---
 
-*State updated: 2026-04-02 after Plan 04-03 completion*
+*State updated: 2026-04-02 after Plan 06-01 completion*
