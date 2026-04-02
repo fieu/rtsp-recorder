@@ -11,6 +11,7 @@ import (
 	"os/exec"
 	"time"
 
+	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
@@ -81,4 +82,41 @@ func DefaultConfig() *Config {
 		FFmpegPath:       "ffmpeg",
 		FilenameTemplate: "recording_{{.Timestamp}}.mp4",
 	}
+}
+
+// BindFlags registers all configuration flags for the given command.
+// It creates both long and short flag forms and binds them to Viper.
+// This enables the configuration precedence: flags > env > config > defaults.
+//
+// Flags registered:
+//   - --url, -u: RTSP stream URL
+//   - --duration, -d: Maximum recording duration
+//   - --max-file-size, -s: Maximum file size in MB
+//   - --retry-attempts, -r: Number of retry attempts
+//   - --ffmpeg-path, -f: Path to ffmpeg binary
+//   - --filename-template, -t: Output filename template
+func BindFlags(cmd *cobra.Command) {
+	// URL flag
+	cmd.Flags().StringP("url", "u", "", "RTSP stream URL to record (required if not in config file)")
+	viper.BindPFlag("url", cmd.Flags().Lookup("url"))
+
+	// Duration flag (60m default)
+	cmd.Flags().DurationP("duration", "d", 60*time.Minute, "Maximum recording duration (e.g., 30m, 1h, 0=unlimited)")
+	viper.BindPFlag("duration", cmd.Flags().Lookup("duration"))
+
+	// Max file size flag (1024MB default)
+	cmd.Flags().Int64P("max-file-size", "s", 1024, "Maximum file size in MB before stopping (0=unlimited)")
+	viper.BindPFlag("max_file_size", cmd.Flags().Lookup("max-file-size"))
+
+	// Retry attempts flag (3 default)
+	cmd.Flags().IntP("retry-attempts", "r", 3, "Number of retry attempts on connection failure")
+	viper.BindPFlag("retry_attempts", cmd.Flags().Lookup("retry-attempts"))
+
+	// FFmpeg path flag
+	cmd.Flags().StringP("ffmpeg-path", "f", "", "Path to ffmpeg binary (default: search PATH)")
+	viper.BindPFlag("ffmpeg_path", cmd.Flags().Lookup("ffmpeg-path"))
+
+	// Filename template flag
+	cmd.Flags().StringP("filename-template", "t", "", "Output filename template (default: recording_{{.Timestamp}}.mp4)")
+	viper.BindPFlag("filename_template", cmd.Flags().Lookup("filename-template"))
 }
