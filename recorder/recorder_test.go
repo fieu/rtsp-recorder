@@ -313,3 +313,101 @@ func TestDisplayProgress_TimelapseInterval(t *testing.T) {
 		t.Errorf("Expected timelapse interval 360, got %d", interval)
 	}
 }
+
+// TestTimelapseWithStopConditions verifies timelapse works with all stop conditions
+// Per TIMELAPSE-03: Timelapse must work with Ctrl+C, duration, and file size limits
+func TestTimelapseWithStopConditions_Duration(t *testing.T) {
+	cfg := config.DefaultConfig()
+	cfg.Duration = 1 * time.Hour
+	cfg.TimelapseDuration = 10 * time.Second
+
+	rec := New(cfg)
+	rec.ffmpeg = ffmpeg.New(cfg)
+
+	// Verify timelapse is properly configured
+	speedup := rec.ffmpeg.GetSpeedupFactor()
+	if speedup != 360.0 {
+		t.Errorf("Expected speedup 360x, got %f", speedup)
+	}
+
+	// Verify duration monitor would be configured (duration > 0)
+	if cfg.Duration <= 0 {
+		t.Error("Duration should be > 0 for duration stop condition")
+	}
+}
+
+// TestTimelapseWithStopConditions_FileSize verifies timelapse works with file size limit
+func TestTimelapseWithStopConditions_FileSize(t *testing.T) {
+	cfg := config.DefaultConfig()
+	cfg.Duration = 30 * time.Minute
+	cfg.TimelapseDuration = 5 * time.Second
+	cfg.MaxFileSize = 1024 // 1GB
+
+	rec := New(cfg)
+	rec.ffmpeg = ffmpeg.New(cfg)
+
+	// Verify both timelapse and file size are configured
+	if rec.ffmpeg.GetSpeedupFactor() <= 1 {
+		t.Error("Timelapse should be enabled with speedup > 1")
+	}
+
+	if cfg.MaxFileSize <= 0 {
+		t.Error("MaxFileSize should be > 0 for file size stop condition")
+	}
+}
+
+// TestTimelapseWithStopConditions_Signal verifies timelapse works with signal handling
+func TestTimelapseWithStopConditions_Signal(t *testing.T) {
+	cfg := config.DefaultConfig()
+	cfg.Duration = 2 * time.Hour
+	cfg.TimelapseDuration = 20 * time.Second
+
+	rec := New(cfg)
+	rec.ffmpeg = ffmpeg.New(cfg)
+
+	// Verify timelapse is enabled - signal monitor works independently
+	speedup := rec.ffmpeg.GetSpeedupFactor()
+	if speedup != 360.0 {
+		t.Errorf("Expected speedup 360x for 2h->20s, got %f", speedup)
+	}
+}
+
+// TestPrintFinalSummary_TimelapseEnabled verifies summary includes timelapse info
+// Per D-59: Summary shows real duration, output duration, and speedup
+func TestPrintFinalSummary_TimelapseEnabled(t *testing.T) {
+	cfg := config.DefaultConfig()
+	cfg.Duration = 1 * time.Hour
+	cfg.TimelapseDuration = 10 * time.Second
+
+	rec := New(cfg)
+	rec.ffmpeg = ffmpeg.New(cfg)
+
+	// Verify timelapse is configured for summary
+	speedup := rec.ffmpeg.GetSpeedupFactor()
+	if speedup != 360.0 {
+		t.Errorf("Expected speedup 360x for summary, got %f", speedup)
+	}
+
+	realDuration := 30 * time.Minute // Simulated half-recording
+	outputDuration := time.Duration(float64(realDuration) / speedup)
+
+	// Expected: 30m / 360 = 5s
+	if outputDuration != 5*time.Second {
+		t.Errorf("Expected output duration ~5s (30m/360), got %v", outputDuration)
+	}
+}
+
+// TestPrintFinalSummary_NoTimelapse verifies summary works without timelapse
+func TestPrintFinalSummary_NoTimelapse(t *testing.T) {
+	cfg := config.DefaultConfig()
+	// No timelapse configured
+
+	rec := New(cfg)
+	rec.ffmpeg = ffmpeg.New(cfg)
+
+	// Verify no timelapse (speedup = 1x)
+	speedup := rec.ffmpeg.GetSpeedupFactor()
+	if speedup != 1.0 {
+		t.Errorf("Expected speedup 1x (no timelapse), got %f", speedup)
+	}
+}

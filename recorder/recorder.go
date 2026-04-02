@@ -196,6 +196,7 @@ func (r *Recorder) displayProgress(done <-chan struct{}) {
 }
 
 // printFinalSummary displays a formatted summary after recording completes.
+// Per D-59: Includes timelapse info when enabled (real duration, output duration, speedup).
 func (r *Recorder) printFinalSummary() {
 	// Get final file info
 	info, err := os.Stat(r.outputPath)
@@ -204,7 +205,7 @@ func (r *Recorder) printFinalSummary() {
 		return
 	}
 
-	duration := time.Since(r.startTime).Round(time.Second)
+	realDuration := time.Since(r.startTime).Round(time.Second)
 	size := info.Size()
 
 	fmt.Println()
@@ -213,10 +214,18 @@ func (r *Recorder) printFinalSummary() {
 	fmt.Println("=" + strings.Repeat("=", 50))
 	fmt.Printf("  File:      %s\n", r.outputPath)
 	fmt.Printf("  Size:      %s (%d bytes)\n", formatBytes(size), size)
-	fmt.Printf("  Duration:  %s\n", formatDuration(duration))
+	fmt.Printf("  Duration:  %s (real)\n", formatDuration(realDuration))
 
-	if duration.Seconds() > 0 {
-		avgBitrate := float64(size) * 8 / duration.Seconds()
+	// Per D-59: Show timelapse summary when enabled
+	if r.ffmpeg != nil && r.ffmpeg.GetSpeedupFactor() > 1 {
+		speedup := r.ffmpeg.GetSpeedupFactor()
+		outputDuration := time.Duration(float64(realDuration) / speedup).Round(time.Second)
+		fmt.Printf("  Output:    %s (timelapse)\n", formatDuration(outputDuration))
+		fmt.Printf("  Speedup:   %.0fx\n", speedup)
+	}
+
+	if realDuration.Seconds() > 0 {
+		avgBitrate := float64(size) * 8 / realDuration.Seconds()
 		fmt.Printf("  Avg Rate:  %s\n", formatBitrate(avgBitrate))
 	}
 
