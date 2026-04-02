@@ -10,7 +10,7 @@
 ## Phases
 
 - [x] **Phase 1: Foundation & Configuration** — CLI scaffolding, config system, and pre-flight validation
-- [ ] **Phase 2: Core Recording Engine** — Record RTSP streams with stop conditions and graceful shutdown
+- [ ] **Phase 2: Core Recording Engine** — Record RTSP streams with stop conditions and graceful shutdown **(In Progress)**
 - [ ] **Phase 3: Resilience & Feedback** — Retry logic, progress display, and edge case handling
 
 ---
@@ -67,11 +67,11 @@ Plans:
 5. Tool displays real-time progress showing bytes recorded, elapsed duration, and current file size during active recording
 6. MP4 file remains valid and playable even if recording ends unexpectedly (unclean shutdown protection)
 
-**Plans:** 3 plans defined
+**Plans:** 2/3 plans complete
 
 Plans:
 - [ ] 02-01-PLAN.md — FFmpeg process wrapper with graceful shutdown (Wave 1)
-- [ ] 02-02-PLAN.md — Stop conditions: signal, duration, file size monitors (Wave 1)
+- [x] 02-02-PLAN.md — Stop conditions: signal, duration, file size monitors (Wave 1)
 - [ ] 02-03-PLAN.md — Recording orchestration and progress display (Wave 2)
 
 **Wave Structure:**
@@ -111,7 +111,7 @@ Wave 2:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation & Configuration | 2/2 | **Complete** | 2025-04-02 |
-| 2. Core Recording Engine | 0/3 | Not started | — |
+| 2. Core Recording Engine | 1/3 | In Progress | — |
 | 3. Resilience & Feedback | 0/2 | Not started | — |
 
 ---
@@ -131,10 +131,10 @@ Wave 2:
 | REC-05 | Phase 2 | Pending |
 | REC-06 | Phase 3 | Pending |
 | REC-07 | Phase 1 | Complete (Plan 01-01) |
-| STOP-01 | Phase 2 | Pending |
-| STOP-02 | Phase 2 | Pending |
-| STOP-03 | Phase 2 | Pending |
-| STOP-04 | Phase 2 | Pending |
+| STOP-01 | Phase 2 | Complete (Plan 02-02) |
+| STOP-02 | Phase 2 | Complete (Plan 02-02) |
+| STOP-03 | Phase 2 | Complete (Plan 02-02) |
+| STOP-04 | Phase 2 | Complete (Plan 02-02) |
 | ERR-01 | Phase 1 | Complete (Plan 01-01) |
 | ERR-02 | Phase 3 | Pending |
 | ERR-03 | Phase 2 | Pending |
