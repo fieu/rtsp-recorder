@@ -12,6 +12,7 @@ import (
 	"os/signal"
 	"sync"
 	"syscall"
+	"time"
 )
 
 // Monitor defines the interface for stop condition monitors.
@@ -79,4 +80,76 @@ func (m *SignalMonitor) Wait() <-chan struct{} {
 // Name returns "signal".
 func (m *SignalMonitor) Name() string {
 	return "signal"
+}
+
+// DurationMonitor watches for a time duration to elapse before triggering stop.
+// Uses Go time.Timer per D-27/D-29 and PITFALLS.md §Pitfall 8 (avoiding ffmpeg -t inaccuracy).
+type DurationMonitor struct {
+	mu       sync.Mutex
+	duration time.Duration // 0 = unlimited
+	timer    *time.Timer
+	stop     chan struct{}
+	started  bool
+}
+
+// NewDurationMonitor creates a new DurationMonitor with the specified duration.
+// If duration is 0 or negative, the monitor triggers immediately (unlimited).
+func NewDurationMonitor(duration time.Duration) *DurationMonitor {
+	return &DurationMonitor{
+		duration: duration,
+		stop:     make(chan struct{}),
+	}
+}
+
+// Start begins the duration timer in a goroutine.
+func (m *DurationMonitor) Start(ctx context.Context) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	if m.started {
+		return
+	}
+
+	if m.duration <= 0 {
+		// Unlimited duration - close channel immediately
+		close(m.stop)
+	} else {
+		// Start timer that will close stop channel when duration elapses
+		m.timer = time.AfterFunc(m.duration, func() {
+			close(m.stop)
+		})
+
+		// Cleanup goroutine for context cancellation
+		go func() {
+			<-ctx.Done()
+			m.mu.Lock()
+			defer m.mu.Unlock()
+			if m.timer != nil {
+				m.timer.Stop()
+			}
+			// If stop not already closed, close it
+			select {
+			case <-m.stop:
+			default:
+				close(m.stop)
+			}
+		}()
+	}
+
+	m.started = true
+}
+
+// Wait returns a channel that closes when the duration elapses.
+func (m *DurationMonitor) Wait() <-chan struct{} {
+	return m.stop
+}
+
+// Name returns "duration".
+func (m *DurationMonitor) Name() string {
+	return "duration"
+}
+
+// Duration returns the configured duration.
+func (m *DurationMonitor) Duration() time.Duration {
+	return m.duration
 }
