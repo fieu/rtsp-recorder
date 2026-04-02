@@ -123,17 +123,6 @@ export RTSP_RECORDER_DURATION=1h
 export RTSP_RECORDER_RETRY_ATTEMPTS=5
 ```
 
-## Other Commands
-
-### Validate Setup
-
-```bash
-./rtsp-recorder validate
-
-[INFO] FFmpeg found: /usr/bin/ffmpeg (version 8.1)
-[INFO] Configuration valid
-```
-
 ## Use Cases
 
 - **Home Security** — Record IP camera footage with scheduled duration
