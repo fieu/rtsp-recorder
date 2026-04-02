@@ -67,7 +67,23 @@ Plans:
 5. Tool displays real-time progress showing bytes recorded, elapsed duration, and current file size during active recording
 6. MP4 file remains valid and playable even if recording ends unexpectedly (unclean shutdown protection)
 
-**Plans:** TBD
+**Plans:** 3 plans defined
+
+Plans:
+- [ ] 02-01-PLAN.md — FFmpeg process wrapper with graceful shutdown (Wave 1)
+- [ ] 02-02-PLAN.md — Stop conditions: signal, duration, file size monitors (Wave 1)
+- [ ] 02-03-PLAN.md — Recording orchestration and progress display (Wave 2)
+
+**Wave Structure:**
+```
+Wave 1 (Parallel):
+  02-01 (FFmpeg wrapper) ──┐
+                           ├──→ Wave 2
+  02-02 (Stop conditions) ──┘
+
+Wave 2:
+  02-03 (Orchestrator - depends on 02-01 and 02-02)
+```
 
 ---
 
