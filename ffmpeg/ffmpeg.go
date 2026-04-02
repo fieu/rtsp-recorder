@@ -186,13 +186,8 @@ func (c *Cmd) buildArgs(url, outputPath string) []string {
 		"-rtsp_transport", "tcp",
 
 		// PITFALLS.md §Pitfall 3: Connection timeout (5 seconds in microseconds)
-		"-stimeout", "5000000",
-
-		// PITFALLS.md §Pitfall 3: Auto-reconnection settings
-		"-reconnect", "1",
-		"-reconnect_at_eof", "1",
-		"-reconnect_streamed", "1",
-		"-reconnect_delay_max", "5",
+		// Note: -stimeout is deprecated in FFmpeg 4.x+, use -timeout instead
+		"-timeout", "5000000",
 
 		// Input URL
 		"-i", url,
