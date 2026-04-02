@@ -9,7 +9,7 @@
 
 ## Phases
 
-- [ ] **Phase 1: Foundation & Configuration** — CLI scaffolding, config system, and pre-flight validation
+- [x] **Phase 1: Foundation & Configuration** — CLI scaffolding, config system, and pre-flight validation
 - [ ] **Phase 2: Core Recording Engine** — Record RTSP streams with stop conditions and graceful shutdown
 - [ ] **Phase 3: Resilience & Feedback** — Retry logic, progress display, and edge case handling
 
@@ -46,7 +46,7 @@
 
 Plans:
 - [x] 01-01-PLAN.md — CLI scaffolding, config system, ffmpeg validation (Wave 1)
-- [ ] 01-02-PLAN.md — Record command with flag support, completing config precedence (Wave 2)
+- [x] 01-02-PLAN.md — Record command with flag support, completing config precedence (Wave 2)
 
 ---
 
@@ -94,7 +94,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation & Configuration | 1/2 | In Progress | 2025-04-02 |
+| 1. Foundation & Configuration | 2/2 | **Complete** | 2025-04-02 |
 | 2. Core Recording Engine | 0/3 | Not started | — |
 | 3. Resilience & Feedback | 0/2 | Not started | — |
 
@@ -105,9 +105,9 @@ Plans:
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | CONF-01 | Phase 1 | Complete (Plan 01-01) |
-| CONF-02 | Phase 1 | Pending |
+| CONF-02 | Phase 1 | Complete (Plan 01-02) |
 | CONF-03 | Phase 1 | Complete (Plan 01-01) |
-| CONF-04 | Phase 1 | Pending |
+| CONF-04 | Phase 1 | Complete (Plan 01-02) |
 | REC-01 | Phase 2 | Pending |
 | REC-02 | Phase 2 | Pending |
 | REC-03 | Phase 2 | Pending |

@@ -2,7 +2,7 @@
 
 **Project:** rtsp-recorder  
 **Created:** 2025-04-02  
-**Mode:** yolo  
+**Mode:** yolo 
 
 ---
 
@@ -23,14 +23,14 @@
 
 **Current Phase:** Phase 1 — Foundation & Configuration
 
-**Current Plan:** 01-02 (ready to execute)
+**Current Plan:** Complete (ready for Phase 2)
 
-**Status:** Planned
+**Status:** Phase 1 Complete - Ready for Phase 2 transition
 
-**Progress:** 4/18 requirements complete, 1/8 plans complete
+**Progress:** 6/18 requirements complete, 2/8 plans complete
 
 ```
-[██                  ] 22%
+[████                ] 22%
 ```
 
 ---
@@ -39,8 +39,8 @@
 
 | Phase | Name | Status | Req Complete | Plans Done |
 |-------|------|--------|--------------|------------|
-| 1 | Foundation & Configuration | In Progress | 4/6 | 1/2 |
-| 2 | Core Recording Engine | Not started | 0/7 | 0/3 |
+| 1 | Foundation & Configuration | **Complete** | 6/6 | 2/2 |
+| 2 | Core Recording Engine | Ready to start | 0/7 | 0/3 |
 | 3 | Resilience & Feedback | Not started | 0/5 | 0/2 |
 
 ---
@@ -49,10 +49,10 @@
 
 | Metric | Value |
 |--------|-------|
-| Requirements completed | 4/18 |
+| Requirements completed | 6/18 |
 | Phases completed | 0/3 |
-| Plans completed | 1/8 |
-| Success criteria verified | 4/4 |
+| Plans completed | 2/8 |
+| Success criteria verified | 6/6 |
 | Defects found | 1 |
 | Defects fixed | 1 |
 
@@ -70,6 +70,8 @@
 | YAML config with Viper | Standard Go config pattern, supports env override | 2025-04-02 |
 | Explicit config file path | Avoid Viper finding binary "rtsp-recorder" and parsing as YAML | 2025-04-02 |
 | Conservative defaults | 60m duration, 1024MB max, 3 retries for safe operation | 2025-04-02 |
+| All flags have short forms | Short flags are convenient for frequent use (e.g., -d 30m) | 2025-04-02 |
+| Positional URL argument | More intuitive than --url flag for primary input | 2025-04-02 |
 
 ### Open Questions
 
@@ -89,18 +91,19 @@
 
 ## Session Continuity
 
-**Last action:** Completed Plan 01-01 (Foundation & Configuration - CLI scaffolding, Viper config, ffmpeg validation)
+**Last action:** Completed Plan 01-02 (Record command with flags, file utilities, complete config precedence)
 
-**Next action:** Execute Plan 01-02
+**Next action:** Transition to Phase 2 Core Recording Engine
 
 **Blockers:** None
 
 **Working Notes:**
 
-- Plan 01-01 complete: CLI foundation with Cobra, Viper config system, ffmpeg validation
-- All 4 success criteria verified (--help, config file, env vars, validate command)
-- Deviation: Fixed Viper config discovery to avoid binary name conflict
-- Ready for Phase 1 Plan 2: Core recording command implementation
+- Plan 01-02 complete: Record command with all 6 config flags (long + short forms)
+- Config precedence verified: flags > env > config > defaults
+- File utilities ready for Phase 2: GenerateTimestampFilename(), SanitizeFilename()
+- All 11 file utility tests passing
+- Phase 1 Foundation & Configuration complete - 6/6 requirements satisfied
 
 ---
 
