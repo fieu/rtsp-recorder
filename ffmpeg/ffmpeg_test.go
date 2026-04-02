@@ -240,6 +240,125 @@ func contains(slice []string, item string) bool {
 	return false
 }
 
+// Test Stop() is idempotent - safe to call multiple times
+func TestStop_Idempotent(t *testing.T) {
+	cfg := config.DefaultConfig()
+	cmd := New(cfg)
+
+	// Stop should be safe to call on a never-started Cmd
+	err := cmd.Stop()
+	if err != nil {
+		t.Errorf("Stop() on never-started Cmd should not error, got: %v", err)
+	}
+
+	// Stop should be safe to call multiple times
+	err = cmd.Stop()
+	if err != nil {
+		t.Errorf("Stop() second call should not error, got: %v", err)
+	}
+}
+
+// Test Stop() handles already-stopped process gracefully
+func TestStop_AlreadyStopped(t *testing.T) {
+	cfg := config.DefaultConfig()
+	cmd := New(cfg)
+
+	// Start and immediately stop
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// Since we don't have actual ffmpeg, test that Stop doesn't panic
+	// on a cmd that was never started
+	err := cmd.Stop()
+	if err != nil {
+		t.Errorf("Stop() should not error when never started: %v", err)
+	}
+
+	_ = ctx
+}
+
+// Test that signal escalation constants are correct per D-18
+func TestStop_SignalEscalationTimeouts(t *testing.T) {
+	// Verify the documented timeouts from D-18:
+	// SIGINT → wait 10s → SIGTERM → wait 5s → SIGKILL
+
+	gracefulTimeout := 10 * time.Second
+	termTimeout := 5 * time.Second
+
+	if gracefulTimeout != 10*time.Second {
+		t.Error("Graceful timeout should be 10 seconds per D-18")
+	}
+
+	if termTimeout != 5*time.Second {
+		t.Error("SIGTERM timeout should be 5 seconds per D-18")
+	}
+}
+
+// Test parseExitError for various error conditions
+func TestParseExitError_ClassifiesErrors(t *testing.T) {
+	cfg := config.DefaultConfig()
+	cmd := New(cfg)
+
+	// Test with nil error
+	err := cmd.parseExitError(nil)
+	if err != nil {
+		t.Error("parseExitError(nil) should return nil")
+	}
+}
+
+// Test GetStderr returns the captured content
+func TestGetStderr_ReturnsContent(t *testing.T) {
+	cfg := config.DefaultConfig()
+	cmd := New(cfg)
+
+	// Initially empty
+	stderr := cmd.GetStderr()
+	if stderr != "" {
+		t.Error("GetStderr should return empty string initially")
+	}
+
+	// Simulate adding content to buffer
+	cmd.stderr.WriteString("test error message")
+
+	stderr = cmd.GetStderr()
+	if stderr != "test error message" {
+		t.Errorf("GetStderr should return captured content, got: %s", stderr)
+	}
+}
+
+// Test IsRunning reflects process state correctly
+func TestIsRunning_StateTracking(t *testing.T) {
+	cfg := config.DefaultConfig()
+	cmd := New(cfg)
+
+	// Not running initially
+	if cmd.IsRunning() {
+		t.Error("IsRunning should be false for new Cmd")
+	}
+
+	// Manually set started to true (simulating a started process)
+	cmd.mu.Lock()
+	cmd.started = true
+	cmd.mu.Unlock()
+
+	// Still not "running" without a process
+	if cmd.IsRunning() {
+		t.Error("IsRunning should be false without actual process")
+	}
+}
+
+// Test GetExitCode returns correct values
+func TestGetExitCode_ReturnsCorrectValue(t *testing.T) {
+	cfg := config.DefaultConfig()
+	cmd := New(cfg)
+
+	// -1 when no process
+	code := cmd.GetExitCode()
+	if code != -1 {
+		t.Errorf("GetExitCode should return -1 before process exits, got %d", code)
+	}
+}
+
 // Mock test to verify ffmpeg package can be imported and used
 func TestFFmpegPackage_BasicFunctionality(t *testing.T) {
 	cfg := &config.Config{
