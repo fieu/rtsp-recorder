@@ -20,7 +20,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"os"
 	"os/exec"
 	"sync"
 	"syscall"
@@ -117,9 +116,12 @@ func (c *Cmd) Start(ctx context.Context, url, outputPath string) error {
 		Setpgid: true, // Create new process group
 	}
 
-	// Capture stderr for error analysis
-	// Per PITFALLS.md §Pitfall 6
-	c.cmd.Stderr = io.MultiWriter(&c.stderr, os.Stderr)
+	// Capture stderr for error analysis only (don't display to terminal)
+	// Per PITFALLS.md §Pitfall 6 - errors are parsed from buffer on failure
+	c.cmd.Stderr = &c.stderr
+
+	// Discard stdout to prevent terminal clutter (progress info not needed)
+	c.cmd.Stdout = io.Discard
 
 	// Start the process
 	if err := c.cmd.Start(); err != nil {
