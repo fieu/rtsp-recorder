@@ -190,7 +190,20 @@ Plans:
 3. All existing log messages use appropriate log levels (debug, info, warn, error)
 4. Logs are structured with timestamps and log levels
 
-**Plans:** TBD
+**Plans:** 2 plans ready
+
+Plans:
+- [ ] 06-01-PLAN.md — Zap logger setup with config integration (Wave 1)
+- [ ] 06-02-PLAN.md — Replace fmt.Println with structured logging (Wave 2)
+
+**Wave Structure:**
+```
+Wave 1:
+  06-01 (Logger setup, config, initialization)
+
+Wave 2 (Depends on Wave 1):
+  06-02 (Replace logging across codebase)
+```
 
 ---
 
@@ -203,7 +216,7 @@ Plans:
 | 3. Resilience & Feedback | 2/2 | **Complete** | 2026-04-02 |
 | 4. Timelapse Recording | 3/3 | Complete    | 2026-04-02 |
 | 5. Documentation & README | 1/1 | **Complete** | 2026-04-02 |
-| 6. Structured Logging with Zap | 0/TBD | Not started | — |
+| 6. Structured Logging with Zap | 0/2 | Planned | — |
 
 ---
 
