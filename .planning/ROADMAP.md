@@ -168,7 +168,10 @@ Plans:
 2. README includes: installation instructions, usage examples, feature overview with emojis, and contribution guidelines
 3. README references the correct GitHub repository: github.com/fieu/rtsp-recorder
 
-**Plans:** TBD
+**Plans:** 1/1 complete
+
+Plans:
+- [x] README.md — Comprehensive documentation with emojis for GitHub
 
 ---
 
@@ -180,7 +183,7 @@ Plans:
 | 2. Core Recording Engine | 3/3 | **Complete** | 2026-04-02 |
 | 3. Resilience & Feedback | 2/2 | **Complete** | 2026-04-02 |
 | 4. Timelapse Recording | 3/3 | Complete    | 2026-04-02 |
-| 5. Documentation & README | 0/TBD | Not started | — |
+| 5. Documentation & README | 1/1 | **Complete** | 2026-04-02 |
 
 ---
 
