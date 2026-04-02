@@ -24,6 +24,9 @@ type Config struct {
 	// Duration is the maximum recording duration (0 = unlimited)
 	Duration time.Duration `mapstructure:"duration"`
 
+	// TimelapseDuration is the target output duration for timelapse (0 = no timelapse)
+	TimelapseDuration time.Duration `mapstructure:"timelapse_duration"`
+
 	// MaxFileSize is the maximum file size in MB before stopping (0 = unlimited)
 	MaxFileSize int64 `mapstructure:"max_file_size"`
 
@@ -76,11 +79,12 @@ func FindFFmpeg() (string, error) {
 // This is useful for testing or when you need defaults without Viper.
 func DefaultConfig() *Config {
 	return &Config{
-		Duration:         60 * time.Minute,
-		MaxFileSize:      1024,
-		RetryAttempts:    3,
-		FFmpegPath:       "ffmpeg",
-		FilenameTemplate: "recording_{{.Timestamp}}.mp4",
+		Duration:          60 * time.Minute,
+		TimelapseDuration: 0, // Disabled by default
+		MaxFileSize:       1024,
+		RetryAttempts:     3,
+		FFmpegPath:        "ffmpeg",
+		FilenameTemplate:  "recording_{{.Timestamp}}.mp4",
 	}
 }
 
