@@ -12,6 +12,7 @@ import (
 	"github.com/spf13/cobra"
 	"rtsp-recorder/config"
 	"rtsp-recorder/internal/validator"
+	"rtsp-recorder/recorder"
 )
 
 // recordCmd represents the record command
@@ -86,12 +87,24 @@ func runRecord(cmd *cobra.Command, args []string) error {
 	fmt.Println("\n[INFO] Recording configuration:")
 	fmt.Printf("  URL: %s\n", cfg.URL)
 	fmt.Printf("  Duration: %v\n", cfg.Duration)
-	fmt.Printf("  Max File Size: %d MB\n", cfg.MaxFileSize)
-	fmt.Printf("  Retry Attempts: %d\n", cfg.RetryAttempts)
+	if cfg.MaxFileSize > 0 {
+		fmt.Printf("  Max File Size: %d MB\n", cfg.MaxFileSize)
+	} else {
+		fmt.Println("  Max File Size: unlimited")
+	}
+	if cfg.RetryAttempts > 0 {
+		fmt.Printf("  Retry Attempts: %d\n", cfg.RetryAttempts)
+	}
 
-	// Phase 2 TODO: Actual recording implementation
-	fmt.Println("\n[INFO] Ready to record (actual recording in Phase 2)")
-	fmt.Println("[INFO] Recording would start with the above configuration")
+	fmt.Println()
+	fmt.Println("[INFO] Starting recording...")
+	fmt.Println("[INFO] Press Ctrl+C to stop")
+
+	// Create and run recorder
+	rec := recorder.New(cfg)
+	if err := rec.Record(cfg.URL); err != nil {
+		return err
+	}
 
 	return nil
 }
