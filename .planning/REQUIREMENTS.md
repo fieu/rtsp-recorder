@@ -14,26 +14,26 @@
 
 ### Recording Core (REC)
 
-- [ ] **REC-01**: User can specify RTSP stream URL via flag or config file
-- [ ] **REC-02**: Tool records stream to MP4 using ffmpeg subprocess
-- [ ] **REC-03**: Output filename uses timestamp format (YYYY-MM-DD-HH-MM-SS.mp4)
-- [ ] **REC-04**: Output files are saved to current working directory
-- [ ] **REC-05**: Tool displays progress (bytes recorded, duration, current file size)
+- [x] **REC-01**: User can specify RTSP stream URL via flag or config file
+- [x] **REC-02**: Tool records stream to MP4 using ffmpeg subprocess
+- [x] **REC-03**: Output filename uses timestamp format (YYYY-MM-DD-HH-MM-SS.mp4)
+- [x] **REC-04**: Output files are saved to current working directory
+- [x] **REC-05**: Tool displays progress (bytes recorded, duration, current file size)
 - [ ] **REC-06**: Tool automatically retries connection on network errors (configurable attempts)
 - [x] **REC-07**: Tool validates ffmpeg is installed before starting recording
 
 ### Stop Conditions (STOP)
 
-- [ ] **STOP-01**: Recording stops gracefully when user presses Ctrl+C (SIGINT)
-- [ ] **STOP-02**: User can specify maximum recording duration in minutes via flag or config
-- [ ] **STOP-03**: Tool stops recording when file size reaches configured maximum (in MB)
-- [ ] **STOP-04**: Multiple stop conditions can be active simultaneously (first one triggered wins)
+- [x] **STOP-01**: Recording stops gracefully when user presses Ctrl+C (SIGINT)
+- [x] **STOP-02**: User can specify maximum recording duration in minutes via flag or config
+- [x] **STOP-03**: Tool stops recording when file size reaches configured maximum (in MB)
+- [x] **STOP-04**: Multiple stop conditions can be active simultaneously (first one triggered wins)
 
 ### Error Handling (ERR)
 
 - [x] **ERR-01**: Tool fails early with clear message if ffmpeg is not found in PATH
 - [ ] **ERR-02**: Tool handles invalid RTSP URLs with descriptive error message
-- [ ] **ERR-03**: Tool ensures MP4 file is properly finalized even on unclean shutdown
+- [x] **ERR-03**: Tool ensures MP4 file is properly finalized even on unclean shutdown
 - [ ] **ERR-04**: Tool provides meaningful error messages for common ffmpeg failures
 
 ## v2 Requirements
@@ -70,20 +70,20 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CONF-02 | Phase 1 | Complete |
 | CONF-03 | Phase 1 | Complete |
 | CONF-04 | Phase 1 | Complete |
-| REC-01 | Phase 2 | Pending |
-| REC-02 | Phase 2 | Pending |
-| REC-03 | Phase 2 | Pending |
-| REC-04 | Phase 2 | Pending |
-| REC-05 | Phase 2 | Pending |
+| REC-01 | Phase 2 | Complete |
+| REC-02 | Phase 2 | Complete |
+| REC-03 | Phase 2 | Complete |
+| REC-04 | Phase 2 | Complete |
+| REC-05 | Phase 2 | Complete |
 | REC-06 | Phase 3 | Pending |
 | REC-07 | Phase 1 | Complete |
-| STOP-01 | Phase 2 | Pending |
-| STOP-02 | Phase 2 | Pending |
-| STOP-03 | Phase 2 | Pending |
-| STOP-04 | Phase 2 | Pending |
+| STOP-01 | Phase 2 | Complete |
+| STOP-02 | Phase 2 | Complete |
+| STOP-03 | Phase 2 | Complete |
+| STOP-04 | Phase 2 | Complete |
 | ERR-01 | Phase 1 | Complete |
 | ERR-02 | Phase 3 | Pending |
-| ERR-03 | Phase 2 | Pending |
+| ERR-03 | Phase 2 | Complete |
 | ERR-04 | Phase 3 | Pending |
 
 **Coverage:**
