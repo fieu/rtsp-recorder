@@ -103,10 +103,10 @@ tasks:
         # macOS
         GOOS=darwin GOARCH=amd64 go build -o dist/{{.BINARY_NAME}}-darwin-amd64 {{.MAIN_PKG}}
         GOOS=darwin GOARCH=arm64 go build -o dist/{{.BINARY_NAME}}-darwin-arm64 {{.MAIN_PKG}}
-        # Linux
-        GOOS=linux GOARCH=amd64 go build -o dist/{{.BINARY_NAME}}-linux-amd64 {{.MAIN_PKG}}
-        GOOS=linux GOARCH=arm64 go build -o dist/{{.BINARY_NAME}}-linux-arm64 {{.MAIN_PKG}}
-        GOOS=linux GOARCH=arm go build -o dist/{{.BINARY_NAME}}-linux-arm {{.MAIN_PKG}}
+        # Linux (static binaries for portability)
+        CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags '-extldflags "-static"' -o dist/{{.BINARY_NAME}}-linux-amd64 {{.MAIN_PKG}}
+        CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags '-extldflags "-static"' -o dist/{{.BINARY_NAME}}-linux-arm64 {{.MAIN_PKG}}
+        CGO_ENABLED=0 GOOS=linux GOARCH=arm go build -ldflags '-extldflags "-static"' -o dist/{{.BINARY_NAME}}-linux-arm {{.MAIN_PKG}}
         # Windows
         GOOS=windows GOARCH=amd64 go build -o dist/{{.BINARY_NAME}}-windows-amd64.exe {{.MAIN_PKG}}
         GOOS=windows GOARCH=arm64 go build -o dist/{{.BINARY_NAME}}-windows-arm64.exe {{.MAIN_PKG}}
@@ -132,9 +132,9 @@ tasks:
         # macOS
         GOOS=darwin GOARCH=amd64 go build -ldflags "-s -w -X main.Version={{.VERSION}} -X main.BuildDate={{.DATE}}" -o dist/{{.BINARY_NAME}}-{{.VERSION}}-darwin-amd64 {{.MAIN_PKG}}
         GOOS=darwin GOARCH=arm64 go build -ldflags "-s -w -X main.Version={{.VERSION}} -X main.BuildDate={{.DATE}}" -o dist/{{.BINARY_NAME}}-{{.VERSION}}-darwin-arm64 {{.MAIN_PKG}}
-        # Linux
-        GOOS=linux GOARCH=amd64 go build -ldflags "-s -w -X main.Version={{.VERSION}} -X main.BuildDate={{.DATE}}" -o dist/{{.BINARY_NAME}}-{{.VERSION}}-linux-amd64 {{.MAIN_PKG}}
-        GOOS=linux GOARCH=arm64 go build -ldflags "-s -w -X main.Version={{.VERSION}} -X main.BuildDate={{.DATE}}" -o dist/{{.BINARY_NAME}}-{{.VERSION}}-linux-arm64 {{.MAIN_PKG}}
+        # Linux (static binaries for portability)
+        CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-s -w -extldflags '-static' -X main.Version={{.VERSION}} -X main.BuildDate={{.DATE}}" -o dist/{{.BINARY_NAME}}-{{.VERSION}}-linux-amd64 {{.MAIN_PKG}}
+        CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags "-s -w -extldflags '-static' -X main.Version={{.VERSION}} -X main.BuildDate={{.DATE}}" -o dist/{{.BINARY_NAME}}-{{.VERSION}}-linux-arm64 {{.MAIN_PKG}}
         # Windows
         GOOS=windows GOARCH=amd64 go build -ldflags "-s -w -X main.Version={{.VERSION}} -X main.BuildDate={{.DATE}}" -o dist/{{.BINARY_NAME}}-{{.VERSION}}-windows-amd64.exe {{.MAIN_PKG}}
       - |
