@@ -1,21 +1,21 @@
-# 📹 rtsp-recorder
+# rtsp-recorder
 
 [![Go Version](https://img.shields.io/badge/go-1.26-blue.svg)](https://golang.org)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-> A lightweight CLI tool for recording RTSP video streams to MP4 files with style ✨
+> A lightweight CLI tool for recording RTSP video streams to MP4 files
 
-## 🚀 Features
+## Features
 
-- 📹 **RTSP Recording** — Capture any RTSP stream to MP4 format
-- ⚡ **Timelapse Mode** — Condense hours of footage into seconds (e.g., 1 hour → 10 seconds)
-- 🎛️ **Flexible Stop Conditions** — Stop by duration, file size, or manual interrupt (Ctrl+C)
-- 📊 **Real-time Progress** — Live display of recording stats
-- 🔄 **Auto-retry** — Automatically reconnects on network errors
-- ⚙️ **Configuration** — YAML config, CLI flags, or environment variables
-- 🪶 **Lightweight** — Minimal CPU usage with stream copy (no re-encoding for normal recordings)
+- **RTSP Recording** — Capture any RTSP stream to MP4 format
+- **Timelapse Mode** — Condense hours of footage into seconds (e.g., 1 hour → 10 seconds)
+- **Flexible Stop Conditions** — Stop by duration, file size, or manual interrupt (Ctrl+C)
+- **Real-time Progress** — Live display of recording stats
+- **Auto-retry** — Automatically reconnects on network errors
+- **Configuration** — YAML config, CLI flags, or environment variables
+- **Lightweight** — Minimal CPU usage with stream copy (no re-encoding for normal recordings)
 
-## 📦 Installation
+## Installation
 
 ### From Source
 
@@ -30,7 +30,7 @@ go build -o rtsp-recorder .
 - [Go](https://golang.org/dl/) 1.26 or later
 - [FFmpeg](https://ffmpeg.org/download.html) 7.1+ or 8.x
 
-## 🎮 Quick Start
+## Quick Start
 
 ### Basic Recording
 
@@ -41,7 +41,7 @@ go build -o rtsp-recorder .
 # Output: recording_2025-04-02-14-30-00.mp4
 ```
 
-### Timelapse Recording ⏱️
+### Timelapse Recording
 
 ```bash
 # Record 1 hour, output 10-second timelapse at 360x speed
@@ -68,7 +68,7 @@ Then simply run:
 ./rtsp-recorder record
 ```
 
-## 📋 Usage
+## Usage
 
 ```
 rtsp-recorder record [RTSP_URL] [flags]
@@ -97,7 +97,7 @@ Examples:
   rtsp-recorder record -d 30m -s 256 rtsp://camera.local/stream
 ```
 
-## ⚙️ Configuration
+## Configuration
 
 Configuration precedence (highest to lowest):
 1. CLI flags
@@ -123,7 +123,7 @@ export RTSP_RECORDER_DURATION=1h
 export RTSP_RECORDER_RETRY_ATTEMPTS=5
 ```
 
-## 🛠️ Other Commands
+## Other Commands
 
 ### Validate Setup
 
@@ -131,17 +131,17 @@ export RTSP_RECORDER_RETRY_ATTEMPTS=5
 ./rtsp-recorder validate
 
 [INFO] FFmpeg found: /usr/bin/ffmpeg (version 8.1)
-[INFO] Configuration valid ✓
+[INFO] Configuration valid
 ```
 
-## 🎯 Use Cases
+## Use Cases
 
-- 🏠 **Home Security** — Record IP camera footage with scheduled duration
-- 🌅 **Time-lapse Videos** — Create accelerated videos of construction, weather, or nature
-- 📹 **Stream Archiving** — Backup live streams for later review
-- 🔬 **Monitoring** — Continuous recording with automatic rotation
+- **Home Security** — Record IP camera footage with scheduled duration
+- **Time-lapse Videos** — Create accelerated videos of construction, weather, or nature
+- **Stream Archiving** — Backup live streams for later review
+- **Monitoring** — Continuous recording with automatic rotation
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 ┌─────────────────┐     ┌──────────────┐     ┌─────────────┐
@@ -154,13 +154,13 @@ export RTSP_RECORDER_RETRY_ATTEMPTS=5
 └─────────────────┘
 ```
 
-## 🧪 Testing
+## Testing
 
 ```bash
 go test ./...
 ```
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/amazing-feature`)
@@ -168,16 +168,16 @@ go test ./...
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📝 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
-- Built with [Cobra](https://github.com/spf13/cobra) 🐍
-- Configuration powered by [Viper](https://github.com/spf13/viper) 🐍
-- Video processing by [FFmpeg](https://ffmpeg.org/) 🎬
+- Built with [Cobra](https://github.com/spf13/cobra)
+- Configuration powered by [Viper](https://github.com/spf13/viper)
+- Video processing by [FFmpeg](https://ffmpeg.org/)
 
 ---
 
-Made with ❤️ for the RTSP recording community
+Made for the RTSP recording community
