@@ -271,3 +271,33 @@ func TestRecordRetry_CustomShouldRetry(t *testing.T) {
 		t.Errorf("expected 2 calls, got %d", callCount)
 	}
 }
+
+// TestRecordTimelapseFlag_Exists verifies record command accepts --timelapse flag.
+func TestRecordTimelapseFlag_Exists(t *testing.T) {
+	flag := recordCmd.Flags().Lookup("timelapse")
+	if flag == nil {
+		t.Error("expected --timelapse flag to be registered")
+	}
+}
+
+// TestRecordTimelapseFlag_ShortForm verifies record command accepts -l short form.
+func TestRecordTimelapseFlag_ShortForm(t *testing.T) {
+	flag := recordCmd.Flags().Lookup("timelapse")
+	if flag == nil {
+		t.Fatal("expected --timelapse flag to be registered")
+	}
+	if flag.Shorthand != "l" {
+		t.Errorf("expected shorthand 'l', got '%s'", flag.Shorthand)
+	}
+}
+
+// TestRecordTimelapseFlag_DefaultValue verifies flag default value is 0.
+func TestRecordTimelapseFlag_DefaultValue(t *testing.T) {
+	flag := recordCmd.Flags().Lookup("timelapse")
+	if flag == nil {
+		t.Fatal("expected --timelapse flag to be registered")
+	}
+	if flag.DefValue != "0s" {
+		t.Errorf("expected default value '0s', got '%s'", flag.DefValue)
+	}
+}
