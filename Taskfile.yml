@@ -129,15 +129,21 @@ tasks:
       - mkdir -p dist
       - |
         echo "Building release version {{.VERSION}}..."
+        echo ""
         # macOS
+        echo "[1/5] Building macOS Intel (amd64)..."
         GOOS=darwin GOARCH=amd64 go build -ldflags "-s -w -X main.Version={{.VERSION}} -X main.BuildDate={{.DATE}}" -o dist/{{.BINARY_NAME}}-{{.VERSION}}-darwin-amd64 {{.MAIN_PKG}}
+        echo "[2/5] Building macOS Apple Silicon (arm64)..."
         GOOS=darwin GOARCH=arm64 go build -ldflags "-s -w -X main.Version={{.VERSION}} -X main.BuildDate={{.DATE}}" -o dist/{{.BINARY_NAME}}-{{.VERSION}}-darwin-arm64 {{.MAIN_PKG}}
         # Linux (static binaries for portability)
+        echo "[3/5] Building Linux x86_64 (static)..."
         CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-s -w -extldflags '-static' -X main.Version={{.VERSION}} -X main.BuildDate={{.DATE}}" -o dist/{{.BINARY_NAME}}-{{.VERSION}}-linux-amd64 {{.MAIN_PKG}}
+        echo "[4/5] Building Linux ARM64 (static)..."
         CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags "-s -w -extldflags '-static' -X main.Version={{.VERSION}} -X main.BuildDate={{.DATE}}" -o dist/{{.BINARY_NAME}}-{{.VERSION}}-linux-arm64 {{.MAIN_PKG}}
         # Windows
+        echo "[5/5] Building Windows x86_64..."
         GOOS=windows GOARCH=amd64 go build -ldflags "-s -w -X main.Version={{.VERSION}} -X main.BuildDate={{.DATE}}" -o dist/{{.BINARY_NAME}}-{{.VERSION}}-windows-amd64.exe {{.MAIN_PKG}}
-      - |
+        echo ""
         echo "✅ Release builds complete!"
         ls -lh dist/
 
