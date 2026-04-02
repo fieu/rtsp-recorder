@@ -111,10 +111,8 @@ func (c *Cmd) Start(ctx context.Context, url, outputPath string) error {
 	c.cmd = exec.CommandContext(ctx, ffmpegPath, args...)
 
 	// Set up process group to prevent zombies and enable group kill
-	// Per PITFALLS.md §Pitfall 7
-	c.cmd.SysProcAttr = &syscall.SysProcAttr{
-		Setpgid: true, // Create new process group
-	}
+	// Per PITFALLS.md §Pitfall 7 - platform-specific implementation
+	setupProcessGroup(c.cmd)
 
 	// Capture stderr for error analysis only (don't display to terminal)
 	// Per PITFALLS.md §Pitfall 6 - errors are parsed from buffer on failure
@@ -198,9 +196,10 @@ func (c *Cmd) Stop() error {
 
 	// Step 5: Force kill entire process group with SIGKILL
 	// Negative PID sends signal to entire process group per PITFALLS.md §Pitfall 7
+	// Platform-specific implementation in ffmpeg_unix.go / ffmpeg_windows.go
 	c.mu.Lock()
 	if c.cmd != nil && c.cmd.Process != nil {
-		syscall.Kill(-c.cmd.Process.Pid, syscall.SIGKILL)
+		killProcessGroup(c.cmd.Process.Pid)
 	}
 	c.mu.Unlock()
 
