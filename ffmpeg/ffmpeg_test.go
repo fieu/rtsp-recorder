@@ -347,6 +347,114 @@ func TestTimelapseInterval_ZeroTimelapseDefaultsToOne(t *testing.T) {
 	}
 }
 
+// TestBuildArgs_TimelapseFilterIncluded tests that -vf is added when timelapse enabled
+func TestBuildArgs_TimelapseFilterIncluded(t *testing.T) {
+	cfg := config.DefaultConfig()
+	cfg.Duration = time.Hour
+	cfg.TimelapseDuration = 10 * time.Second
+
+	cmd := New(cfg)
+	args := cmd.buildArgs("rtsp://example.com/stream", "/tmp/output.mp4")
+
+	// Find -vf flag
+	found := false
+	for i, arg := range args {
+		if arg == "-vf" && i+1 < len(args) {
+			filter := args[i+1]
+			// Per D-56: Filter format is select='not(mod(n,X))',setpts=N/(FRAME_RATE*TB)
+			expected := "select='not(mod(n,360))',setpts=N/(FRAME_RATE*TB)"
+			if filter == expected {
+				found = true
+			} else {
+				t.Errorf("Filter format incorrect.\nExpected: %s\nGot: %s", expected, filter)
+			}
+			break
+		}
+	}
+	if !found {
+		t.Error("buildArgs should include -vf with timelapse filter when timelapseInterval > 1")
+	}
+}
+
+// TestBuildArgs_NoTimelapseFilter tests that -vf is NOT added when timelapse disabled
+func TestBuildArgs_NoTimelapseFilter(t *testing.T) {
+	cfg := config.DefaultConfig()
+	cfg.TimelapseDuration = 0 // Disabled
+
+	cmd := New(cfg)
+	args := cmd.buildArgs("rtsp://example.com/stream", "/tmp/output.mp4")
+
+	// Should NOT have -vf flag
+	for _, arg := range args {
+		if arg == "-vf" {
+			t.Error("buildArgs should NOT include -vf when timelapse is disabled")
+			break
+		}
+	}
+}
+
+// TestBuildArgs_TimelapseDisablesAudio tests that -an is used when timelapse enabled
+func TestBuildArgs_TimelapseDisablesAudio(t *testing.T) {
+	cfg := config.DefaultConfig()
+	cfg.Duration = time.Hour
+	cfg.TimelapseDuration = 10 * time.Second
+
+	cmd := New(cfg)
+	args := cmd.buildArgs("rtsp://example.com/stream", "/tmp/output.mp4")
+
+	// Should have -an (no audio) for timelapse
+	if !contains(args, "-an") {
+		t.Error("buildArgs should include -an (no audio) when timelapse is enabled")
+	}
+
+	// Should NOT have -c:a aac when timelapse enabled
+	if contains(args, "-c:a") {
+		t.Error("buildArgs should NOT include -c:a when timelapse is enabled")
+	}
+}
+
+// TestBuildArgs_NoTimelapseKeepsAudio tests that audio is encoded when timelapse disabled
+func TestBuildArgs_NoTimelapseKeepsAudio(t *testing.T) {
+	cfg := config.DefaultConfig()
+	cfg.TimelapseDuration = 0 // Disabled
+
+	cmd := New(cfg)
+	args := cmd.buildArgs("rtsp://example.com/stream", "/tmp/output.mp4")
+
+	// Should have -c:a aac for normal recording
+	if !contains(args, "-c:a") || !contains(args, "aac") {
+		t.Error("buildArgs should include -c:a aac for audio when timelapse is disabled")
+	}
+
+	// Should NOT have -an when timelapse disabled
+	if contains(args, "-an") {
+		t.Error("buildArgs should NOT include -an when timelapse is disabled")
+	}
+}
+
+// TestBuildArgs_VideoCopyAlwaysPresent tests -c:v copy is always present
+func TestBuildArgs_VideoCopyAlwaysPresent(t *testing.T) {
+	cfg := config.DefaultConfig()
+
+	// Test with timelapse
+	cfg.Duration = time.Hour
+	cfg.TimelapseDuration = 10 * time.Second
+	cmd := New(cfg)
+	args := cmd.buildArgs("rtsp://example.com/stream", "/tmp/output.mp4")
+	if !contains(args, "-c:v") || !contains(args, "copy") {
+		t.Error("buildArgs should include -c:v copy with timelapse")
+	}
+
+	// Test without timelapse
+	cfg2 := config.DefaultConfig()
+	cfg2.TimelapseDuration = 0
+	cmd2 := New(cfg2)
+	args2 := cmd2.buildArgs("rtsp://example.com/stream", "/tmp/output.mp4")
+	if !contains(args2, "-c:v") || !contains(args2, "copy") {
+		t.Error("buildArgs should include -c:v copy without timelapse")
+	}
+}
+
 // Test Stop() is idempotent - safe to call multiple times
 func TestStop_Idempotent(t *testing.T) {
 	cfg := config.DefaultConfig()

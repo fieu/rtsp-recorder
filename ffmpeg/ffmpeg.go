@@ -224,13 +224,28 @@ func (c *Cmd) buildArgs(url, outputPath string) []string {
 
 		// Input URL
 		"-i", url,
+	}
 
-		// D-14: Copy video without re-encoding (low CPU), but re-encode audio to AAC
-		// pcm_alaw and other RTSP audio codecs aren't compatible with MP4 container
-		"-c:v", "copy",
-		"-c:a", "aac",
-		"-b:a", "128k",
+	// Per D-56, D-57: Add timelapse filter if enabled
+	if c.timelapseInterval > 1 {
+		filter := fmt.Sprintf("select='not(mod(n,%d))',setpts=N/(FRAME_RATE*TB)", c.timelapseInterval)
+		args = append(args, "-vf", filter)
+	}
 
+	// Video codec - always copy
+	args = append(args, "-c:v", "copy")
+
+	// Per D-58: Audio handling for timelapse
+	if c.timelapseInterval > 1 {
+		// Drop audio for timelapse (simpler, more typical)
+		args = append(args, "-an")
+	} else {
+		// Normal recording: encode audio to AAC
+		args = append(args, "-c:a", "aac", "-b:a", "128k")
+	}
+
+	// Remaining args
+	args = append(args,
 		// Force CFR (constant frame rate) for better seeking
 		"-vsync", "cfr",
 
@@ -246,7 +261,7 @@ func (c *Cmd) buildArgs(url, outputPath string) []string {
 
 		// Output path
 		outputPath,
-	}
+	)
 
 	return args
 }
