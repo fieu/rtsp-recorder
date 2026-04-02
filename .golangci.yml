@@ -1,0 +1,41 @@
+run:
+  timeout: 5m
+  skip-dirs:
+    - .planning
+    - dist
+    - vendor
+
+linters:
+  enable:
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+    - gocritic
+    - gofmt
+    - goimports
+    - misspell
+    - revive
+
+linters-settings:
+  gofmt:
+    simplify: true
+  goimports:
+    local-prefixes: rtsp-recorder
+
+issues:
+  exclude-rules:
+    # Exclude some linters from running on tests files
+    - path: _test\.go
+      linters:
+        - gocritic
+        - gosec
+    # Exclude known linter issues
+    - text: "weakness"
+      linters:
+        - gosec
+
+  max-issues-per-linter: 0
+  max-same-issues: 0
