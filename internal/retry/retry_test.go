@@ -12,6 +12,7 @@ import (
 	"testing"
 	"time"
 
+	"go.uber.org/zap"
 	"rtsp-recorder/config"
 	rrerrors "rtsp-recorder/internal/errors"
 )
@@ -300,7 +301,8 @@ func TestDefaultRetryConfig(t *testing.T) {
 		RetryAttempts: 5,
 	}
 
-	rc := DefaultRetryConfig(cfg, nil)
+	logger := zap.NewNop()
+	rc := DefaultRetryConfig(cfg, logger)
 
 	if rc.MaxAttempts != 5 {
 		t.Errorf("expected MaxAttempts=5, got %d", rc.MaxAttempts)
@@ -325,7 +327,8 @@ func TestDefaultRetryConfig_DefaultValue(t *testing.T) {
 		RetryAttempts: 0,
 	}
 
-	rc := DefaultRetryConfig(cfg, nil)
+	logger := zap.NewNop()
+	rc := DefaultRetryConfig(cfg, logger)
 
 	if rc.MaxAttempts != 3 {
 		t.Errorf("expected default MaxAttempts=3, got %d", rc.MaxAttempts)
