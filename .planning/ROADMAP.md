@@ -119,6 +119,25 @@ Wave 2 (Depends on Wave 1):
 
 ---
 
+### Phase 4: Timelapse Recording
+
+**Goal:** User can create timelapse videos by recording for a duration and condensing to a shorter target duration
+
+**Depends on:** Phase 2 (Core Recording Engine)
+
+**Requirements:** TIMELAPSE-01, TIMELAPSE-02, TIMELAPSE-03
+
+**Success Criteria** (what must be TRUE):
+
+1. User can specify `--timelapse` or `-tl` flag with target duration (e.g., `--timelapse 10s` for 10 second output)
+2. Tool records for the full configured duration, then condenses video to target timelapse duration
+3. Output video plays at accelerated speed showing the condensed timeline
+4. Timelapse works with all existing stop conditions (Ctrl+C, duration, file size)
+
+**Plans:** TBD
+
+---
+
 ## Progress Tracking
 
 | Phase | Plans Complete | Status | Completed |
@@ -126,6 +145,7 @@ Wave 2 (Depends on Wave 1):
 | 1. Foundation & Configuration | 2/2 | **Complete** | 2025-04-02 |
 | 2. Core Recording Engine | 3/3 | **Complete** | 2026-04-02 |
 | 3. Resilience & Feedback | 2/2 | **Complete** | 2026-04-02 |
+| 4. Timelapse Recording | 0/TBD | Not started | — |
 
 ---
 
