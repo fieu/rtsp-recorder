@@ -7,10 +7,10 @@
 
 ### Configuration (CONF)
 
-- [ ] **CONF-01**: User can define settings in `rtsp-recorder.yml` file
-- [ ] **CONF-02**: User can override config values via CLI flags
-- [ ] **CONF-03**: User can set values via environment variables
-- [ ] **CONF-04**: Configuration is loaded using Viper library with proper precedence (flags > env > config > defaults)
+- [x] **CONF-01**: User can define settings in `rtsp-recorder.yml` file
+- [x] **CONF-02**: User can override config values via CLI flags
+- [x] **CONF-03**: User can set values via environment variables
+- [x] **CONF-04**: Configuration is loaded using Viper library with proper precedence (flags > env > config > defaults)
 
 ### Recording Core (REC)
 
@@ -20,7 +20,7 @@
 - [ ] **REC-04**: Output files are saved to current working directory
 - [ ] **REC-05**: Tool displays progress (bytes recorded, duration, current file size)
 - [ ] **REC-06**: Tool automatically retries connection on network errors (configurable attempts)
-- [ ] **REC-07**: Tool validates ffmpeg is installed before starting recording
+- [x] **REC-07**: Tool validates ffmpeg is installed before starting recording
 
 ### Stop Conditions (STOP)
 
@@ -31,7 +31,7 @@
 
 ### Error Handling (ERR)
 
-- [ ] **ERR-01**: Tool fails early with clear message if ffmpeg is not found in PATH
+- [x] **ERR-01**: Tool fails early with clear message if ffmpeg is not found in PATH
 - [ ] **ERR-02**: Tool handles invalid RTSP URLs with descriptive error message
 - [ ] **ERR-03**: Tool ensures MP4 file is properly finalized even on unclean shutdown
 - [ ] **ERR-04**: Tool provides meaningful error messages for common ffmpeg failures
@@ -66,22 +66,22 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CONF-01 | Phase 1 | Pending |
-| CONF-02 | Phase 1 | Pending |
-| CONF-03 | Phase 1 | Pending |
-| CONF-04 | Phase 1 | Pending |
+| CONF-01 | Phase 1 | Complete |
+| CONF-02 | Phase 1 | Complete |
+| CONF-03 | Phase 1 | Complete |
+| CONF-04 | Phase 1 | Complete |
 | REC-01 | Phase 2 | Pending |
 | REC-02 | Phase 2 | Pending |
 | REC-03 | Phase 2 | Pending |
 | REC-04 | Phase 2 | Pending |
 | REC-05 | Phase 2 | Pending |
 | REC-06 | Phase 3 | Pending |
-| REC-07 | Phase 1 | Pending |
+| REC-07 | Phase 1 | Complete |
 | STOP-01 | Phase 2 | Pending |
 | STOP-02 | Phase 2 | Pending |
 | STOP-03 | Phase 2 | Pending |
 | STOP-04 | Phase 2 | Pending |
-| ERR-01 | Phase 1 | Pending |
+| ERR-01 | Phase 1 | Complete |
 | ERR-02 | Phase 3 | Pending |
 | ERR-03 | Phase 2 | Pending |
 | ERR-04 | Phase 3 | Pending |

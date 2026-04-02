@@ -19,7 +19,7 @@
 
 | Phase | Name | Goal | Requirements | Success Criteria |
 |-------|------|------|--------------|------------------|
-| 1 | Foundation & Configuration | Tool can be configured and validated before recording | 6 | 4 |
+| 1 | Foundation & Configuration | Tool can be configured and validated before recording | Complete    | 2026-04-02 |
 | 2 | Core Recording Engine | User can record RTSP streams with flexible stop conditions | 7 | 5 |
 | 3 | Resilience & Feedback | Recording is robust with retry, progress visibility, and clean error handling | 5 | 4 |
 
@@ -42,7 +42,7 @@
 3. User can override any config value via CLI flags or environment variables (following precedence: flags > env > config > defaults)
 4. Tool fails immediately with a clear error message if ffmpeg is not found in PATH, before attempting any recording
 
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 
 Plans:
 - [x] 01-01-PLAN.md — CLI scaffolding, config system, ffmpeg validation (Wave 1)
