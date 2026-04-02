@@ -411,3 +411,47 @@ func TestPrintFinalSummary_NoTimelapse(t *testing.T) {
 		t.Errorf("Expected speedup 1x (no timelapse), got %f", speedup)
 	}
 }
+
+// TestPrintFinalSummary_OutputDurationCalculation verifies output duration math
+func TestPrintFinalSummary_OutputDurationCalculation(t *testing.T) {
+	tests := []struct {
+		realDuration time.Duration
+		speedup      float64
+		expected     time.Duration
+	}{
+		{1 * time.Hour, 360.0, 10 * time.Second},
+		{30 * time.Minute, 360.0, 5 * time.Second},
+		{2 * time.Hour, 360.0, 20 * time.Second},
+		{1 * time.Hour, 60.0, 1 * time.Minute},
+	}
+
+	for _, tt := range tests {
+		outputDuration := time.Duration(float64(tt.realDuration) / tt.speedup)
+		if outputDuration != tt.expected {
+			t.Errorf("Output duration for %v at %.0fx: expected %v, got %v",
+				tt.realDuration, tt.speedup, tt.expected, outputDuration)
+		}
+	}
+}
+
+// TestPrintFinalSummary_SpeedupRounding verifies speedup is displayed as integer
+func TestPrintFinalSummary_SpeedupRounding(t *testing.T) {
+	cfg := config.DefaultConfig()
+	cfg.Duration = 1 * time.Hour
+	cfg.TimelapseDuration = 10 * time.Second
+
+	rec := New(cfg)
+	rec.ffmpeg = ffmpeg.New(cfg)
+
+	speedup := rec.ffmpeg.GetSpeedupFactor()
+	// Speedup should be exactly 360.0 for 1h/10s
+	if speedup != 360.0 {
+		t.Errorf("Expected speedup 360.0, got %f", speedup)
+	}
+
+	// Verify it rounds to integer cleanly
+	speedupInt := int(speedup + 0.5)
+	if speedupInt != 360 {
+		t.Errorf("Expected speedup int 360, got %d", speedupInt)
+	}
+}
