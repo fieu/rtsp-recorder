@@ -189,6 +189,10 @@ func (c *Cmd) buildArgs(url, outputPath string) []string {
 		// Note: -stimeout is deprecated in FFmpeg 4.x+, use -timeout instead
 		"-timeout", "5000000",
 
+		// Fix blank/black start: discard corrupted frames and generate proper timestamps
+		"-fflags", "+discardcorrupt+genpts",
+		"-use_wallclock_as_timestamps", "1",
+
 		// Input URL
 		"-i", url,
 
@@ -197,6 +201,9 @@ func (c *Cmd) buildArgs(url, outputPath string) []string {
 		"-c:v", "copy",
 		"-c:a", "aac",
 		"-b:a", "128k",
+
+		// Force CFR (constant frame rate) for better seeking
+		"-vsync", "cfr",
 
 		// D-16: Output format MP4
 		"-f", "mp4",
