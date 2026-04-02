@@ -130,6 +130,7 @@ func (r *Recorder) runWithStopConditions(ctx context.Context) error {
 
 // displayProgress shows recording progress every 1 second.
 // Updates display with file size, elapsed time, and bitrate.
+// Per D-59, D-60: Shows timelapse speedup and estimated output duration when enabled.
 func (r *Recorder) displayProgress(done <-chan struct{}) {
 	ticker := time.NewTicker(1 * time.Second) // D-21
 	defer ticker.Stop()
@@ -158,12 +159,38 @@ func (r *Recorder) displayProgress(done <-chan struct{}) {
 				bitrate = "0 Mbps"
 			}
 
-			// Format output per D-22: "Recording: 1.2GB | 00:05:30 | 4.5Mbps"
-			fmt.Printf("\rRecording: %s | %s | %s",
-				formatBytes(size),
-				formatDuration(elapsed),
-				bitrate,
-			)
+			bytesStr := formatBytes(size)
+
+			// Per D-59, D-60: Show timelapse info when enabled
+			if r.ffmpeg != nil {
+				speedup := r.ffmpeg.GetSpeedupFactor()
+				if speedup > 1 {
+					// Timelapse mode: show speedup and estimated output duration
+					// elapsed is real recording time, output is compressed
+					estimatedOutput := time.Duration(float64(elapsed) / speedup)
+					fmt.Printf("\r[INFO] Recording: %v elapsed | Output: ~%v | %.0fx speed | %s | %s",
+						formatDuration(elapsed),
+						formatDuration(estimatedOutput),
+						speedup,
+						bytesStr,
+						bitrate,
+					)
+				} else {
+					// Normal recording: original format per D-22
+					fmt.Printf("\rRecording: %s | %s | %s",
+						bytesStr,
+						formatDuration(elapsed),
+						bitrate,
+					)
+				}
+			} else {
+				// Normal recording (fallback if ffmpeg not initialized)
+				fmt.Printf("\rRecording: %s | %s | %s",
+					bytesStr,
+					formatDuration(elapsed),
+					bitrate,
+				)
+			}
 		}
 	}
 }

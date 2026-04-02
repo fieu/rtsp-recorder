@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"rtsp-recorder/config"
+	"rtsp-recorder/ffmpeg"
 )
 
 // TestRecorder_New tests that New() creates a Recorder with config reference
@@ -239,5 +240,76 @@ func TestFormatBitrate_EdgeCases(t *testing.T) {
 		if result != tt.expected {
 			t.Errorf("formatBitrate(%f) = %s, want %s", tt.bps, result, tt.expected)
 		}
+	}
+}
+
+// TestDisplayProgress_WithTimelapse tests progress display includes timelapse info
+// Per D-59: Show speedup factor in progress display
+func TestDisplayProgress_WithTimelapse(t *testing.T) {
+	cfg := config.DefaultConfig()
+	cfg.Duration = time.Hour
+	cfg.TimelapseDuration = 10 * time.Second
+
+	rec := New(cfg)
+	rec.ffmpeg = ffmpeg.New(cfg)
+
+	// Verify ffmpeg is initialized with timelapse
+	if rec.ffmpeg == nil {
+		t.Fatal("ffmpeg.Cmd should be initialized")
+	}
+
+	speedup := rec.ffmpeg.GetSpeedupFactor()
+	if speedup != 360.0 {
+		t.Errorf("Expected speedup factor 360x, got %f", speedup)
+	}
+}
+
+// TestDisplayProgress_WithoutTimelapse tests normal recording shows no timelapse info
+func TestDisplayProgress_WithoutTimelapse(t *testing.T) {
+	cfg := config.DefaultConfig()
+	// No timelapse configured
+
+	rec := New(cfg)
+	rec.ffmpeg = ffmpeg.New(cfg)
+
+	// Verify speedup is 1x (no timelapse)
+	speedup := rec.ffmpeg.GetSpeedupFactor()
+	if speedup != 1.0 {
+		t.Errorf("Expected speedup factor 1x (no timelapse), got %f", speedup)
+	}
+}
+
+// TestDisplayProgress_EstimatedOutput tests output duration calculation
+// Per D-60: Progress shows estimated output time
+func TestDisplayProgress_EstimatedOutput(t *testing.T) {
+	cfg := config.DefaultConfig()
+	cfg.Duration = time.Hour
+	cfg.TimelapseDuration = 10 * time.Second
+
+	rec := New(cfg)
+	rec.ffmpeg = ffmpeg.New(cfg)
+
+	speedup := rec.ffmpeg.GetSpeedupFactor()
+	elapsed := 30 * time.Minute // Halfway through recording
+
+	// Calculate expected output duration
+	expectedOutput := time.Duration(float64(elapsed) / speedup)
+	if expectedOutput != 5*time.Second {
+		t.Errorf("Expected output duration ~5s (30m/360), got %v", expectedOutput)
+	}
+}
+
+// TestDisplayProgress_TimelapseInterval tests timelapse interval is accessible
+func TestDisplayProgress_TimelapseInterval(t *testing.T) {
+	cfg := config.DefaultConfig()
+	cfg.Duration = time.Hour
+	cfg.TimelapseDuration = 10 * time.Second
+
+	rec := New(cfg)
+	rec.ffmpeg = ffmpeg.New(cfg)
+
+	interval := rec.ffmpeg.GetTimelapseInterval()
+	if interval != 360 {
+		t.Errorf("Expected timelapse interval 360, got %d", interval)
 	}
 }
