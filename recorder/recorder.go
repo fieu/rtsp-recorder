@@ -121,9 +121,8 @@ func (r *Recorder) runWithStopConditions(ctx context.Context) error {
 
 	// Stop progress display
 	close(progressDone)
-	time.Sleep(100 * time.Millisecond) // Let final display flush
+	// Ticker stopped via defer in displayProgress()
 
-	fmt.Println() // New line after progress display
 	r.logger.Info().Str("reason", reason.Desc).Msg("Stopping recording")
 
 	// Stop ffmpeg gracefully
@@ -137,71 +136,75 @@ func (r *Recorder) runWithStopConditions(ctx context.Context) error {
 	return nil
 }
 
-// displayProgress shows recording progress every 1 second.
-// Updates display with file size, elapsed time, and bitrate.
-// Per D-59, D-60: Shows timelapse speedup and estimated output duration when enabled.
+// displayProgress logs recording progress periodically using structured logging.
+// Per D-96, D-97, D-104: Uses zerolog instead of \r overwrite.
+// Per D-108: Uses time.Ticker with configurable interval.
+// Per D-110: Logs immediately at start (0 seconds).
+// Per D-102: Skips entirely if ProgressInterval is 0.
 func (r *Recorder) displayProgress(done <-chan struct{}) {
-	ticker := time.NewTicker(1 * time.Second) // D-21
+	// Per D-102: Skip entirely if interval is 0
+	if r.config.ProgressInterval <= 0 {
+		return
+	}
+
+	ticker := time.NewTicker(r.config.ProgressInterval) // Per D-108: configurable interval
 	defer ticker.Stop()
+
+	// Per D-110: Log immediately at start (0 seconds)
+	r.logProgress()
 
 	for {
 		select {
 		case <-done:
 			return
 		case <-ticker.C:
-			elapsed := time.Since(r.startTime)
-
-			// Get current file size
-			var size int64
-			if info, err := os.Stat(r.outputPath); err == nil {
-				size = info.Size()
-				atomic.StoreInt64(&r.bytesRecorded, size)
-			}
-
-			// Calculate bitrate (bytes/seconds * 8 = bits per second)
-			var bitrate string
-			elapsedSecs := elapsed.Seconds()
-			if elapsedSecs > 0 && size > 0 {
-				bps := float64(size) * 8 / elapsedSecs
-				bitrate = formatBitrate(bps)
-			} else {
-				bitrate = "0 Mbps"
-			}
-
-			bytesStr := formatBytes(size)
-
-			// Per D-59, D-60: Show timelapse info when enabled
-			if r.ffmpeg != nil {
-				speedup := r.ffmpeg.GetSpeedupFactor()
-				if speedup > 1 {
-					// Timelapse mode: show speedup and estimated output duration
-					// elapsed is real recording time, output is compressed
-					estimatedOutput := time.Duration(float64(elapsed) / speedup)
-					fmt.Printf("\r[INFO] Recording: %v elapsed | Output: ~%v | %.0fx speed | %s | %s",
-						formatDuration(elapsed),
-						formatDuration(estimatedOutput),
-						speedup,
-						bytesStr,
-						bitrate,
-					)
-				} else {
-					// Normal recording: original format per D-22
-					fmt.Printf("\rRecording: %s | %s | %s",
-						bytesStr,
-						formatDuration(elapsed),
-						bitrate,
-					)
-				}
-			} else {
-				// Normal recording (fallback if ffmpeg not initialized)
-				fmt.Printf("\rRecording: %s | %s | %s",
-					bytesStr,
-					formatDuration(elapsed),
-					bitrate,
-				)
-			}
+			r.logProgress()
 		}
 	}
+}
+
+// logProgress outputs a single structured progress log entry.
+// Per D-103: Includes elapsed time, bytes, file size, bitrate.
+// Per D-104: Uses structured zerolog fields.
+func (r *Recorder) logProgress() {
+	elapsed := time.Since(r.startTime)
+
+	// Get current file size
+	var size int64
+	if info, err := os.Stat(r.outputPath); err == nil {
+		size = info.Size()
+		atomic.StoreInt64(&r.bytesRecorded, size)
+	}
+
+	bytesStr := formatBytes(size)
+
+	// Build log event with structured fields per D-104
+	event := r.logger.Info().
+		Dur("elapsed", elapsed).
+		Int64("bytes", size).
+		Str("size", bytesStr)
+
+	// Add bitrate if calculable per D-103
+	elapsedSecs := elapsed.Seconds()
+	if elapsedSecs > 0 && size > 0 {
+		bps := float64(size) * 8 / elapsedSecs
+		event = event.
+			Float64("bitrate_bps", bps).
+			Str("bitrate", formatBitrate(bps))
+	}
+
+	// Add timelapse fields when active per D-103
+	if r.ffmpeg != nil {
+		speedup := r.ffmpeg.GetSpeedupFactor()
+		if speedup > 1 {
+			estimatedOutput := time.Duration(float64(elapsed) / speedup)
+			event = event.
+				Float64("speedup", speedup).
+				Dur("output_duration", estimatedOutput)
+		}
+	}
+
+	event.Msg("Recording progress")
 }
 
 // printFinalSummary displays a formatted summary after recording completes.
