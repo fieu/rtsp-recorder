@@ -171,7 +171,6 @@ tasks:
       - |
         echo "Creating GitHub release {{.VERSION}}..."
         gh release create {{.VERSION}} \
-          --title "Release {{.VERSION}}" \
           --generate-notes \
           dist/*
       - |
@@ -188,7 +187,6 @@ tasks:
         echo "Creating draft release {{.VERSION}}..."
         gh release create {{.VERSION}} \
           --draft \
-          --title "Release {{.VERSION}}" \
           --notes-file CHANGELOG.md \
           dist/*
       - echo "✅ Draft release created. Publish when ready!"
