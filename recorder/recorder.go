@@ -15,6 +15,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"go.uber.org/zap"
 	"rtsp-recorder/config"
 	"rtsp-recorder/ffmpeg"
 	"rtsp-recorder/internal/utils"
@@ -28,12 +29,14 @@ type Recorder struct {
 	outputPath    string
 	startTime     time.Time
 	bytesRecorded int64 // atomic
+	logger        *zap.Logger
 }
 
 // New creates a new Recorder with the given configuration.
-func New(cfg *config.Config) *Recorder {
+func New(cfg *config.Config, logger *zap.Logger) *Recorder {
 	return &Recorder{
 		config: cfg,
+		logger: logger,
 	}
 }
 
@@ -62,10 +65,16 @@ func (r *Recorder) Record(url string) error {
 
 	r.outputPath = filepath.Join(cwd, filename)
 
-	fmt.Printf("[INFO] Output file: %s\n", r.outputPath)
+	r.logger.Info("Output file", zap.String("path", r.outputPath))
 
 	// Create ffmpeg command
 	r.ffmpeg = ffmpeg.New(r.config)
+
+	// Debug logging for ffmpeg configuration
+	r.logger.Debug("FFmpeg command created",
+		zap.String("ffmpeg_path", r.config.GetFFmpegPath()),
+		zap.Bool("timelapse_enabled", r.config.TimelapseDuration > 0),
+	)
 
 	// Create parent context
 	ctx := context.Background()
@@ -115,11 +124,11 @@ func (r *Recorder) runWithStopConditions(ctx context.Context) error {
 	time.Sleep(100 * time.Millisecond) // Let final display flush
 
 	fmt.Println() // New line after progress display
-	fmt.Printf("[INFO] Stopping recording: %s\n", reason.Desc)
+	r.logger.Info("Stopping recording", zap.String("reason", reason.Desc))
 
 	// Stop ffmpeg gracefully
 	if err := r.ffmpeg.Stop(); err != nil {
-		fmt.Fprintf(os.Stderr, "[WARNING] FFmpeg stop error: %v\n", err)
+		r.logger.Warn("FFmpeg stop error", zap.Error(err))
 	}
 
 	// Print final summary (D-23)
@@ -201,7 +210,7 @@ func (r *Recorder) printFinalSummary() {
 	// Get final file info
 	info, err := os.Stat(r.outputPath)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "[WARNING] Could not read output file: %v\n", err)
+		r.logger.Warn("Could not read output file", zap.Error(err))
 		return
 	}
 

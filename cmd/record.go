@@ -128,7 +128,7 @@ func runRecord(cmd *cobra.Command, args []string) error {
 	defer stop()
 
 	// Create and run recorder with retry logic
-	rec := recorder.New(cfg)
+	rec := recorder.New(cfg, Logger)
 
 	// Create retry configuration
 	retryCfg := retry.DefaultRetryConfig(cfg)
