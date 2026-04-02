@@ -6,12 +6,17 @@ Record subcommand - records an RTSP stream to MP4.
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/spf13/cobra"
 	"rtsp-recorder/config"
+	rrerrors "rtsp-recorder/internal/errors"
+	"rtsp-recorder/internal/retry"
 	"rtsp-recorder/internal/validator"
 	"rtsp-recorder/recorder"
 )
@@ -84,13 +89,7 @@ func runRecord(cmd *cobra.Command, args []string) error {
 	}
 	fmt.Printf("[INFO] FFmpeg found: %s (version %s)\n", path, version)
 
-	// Validate RTSP stream is accessible before starting (ERR-02)
-	fmt.Println("[INFO] Validating RTSP stream...")
-	if err := validator.ValidateRTSP(cfg.URL, 10*time.Second); err != nil {
-		return err // Already formatted with [ERROR] prefix
-	}
-	fmt.Println("[INFO] RTSP stream validated successfully")
-
+	// Note: RTSP validation is now done inside the retry loop for fresh checks
 	// Display configuration being used
 	fmt.Println("\n[INFO] Recording configuration:")
 	fmt.Printf("  URL: %s\n", cfg.URL)
@@ -108,10 +107,32 @@ func runRecord(cmd *cobra.Command, args []string) error {
 	fmt.Println("[INFO] Starting recording...")
 	fmt.Println("[INFO] Press Ctrl+C to stop")
 
-	// Create and run recorder
+	// Create signal context for graceful shutdown
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
+
+	// Create and run recorder with retry logic
 	rec := recorder.New(cfg)
-	if err := rec.Record(cfg.URL); err != nil {
-		return err
+
+	// Create retry configuration
+	retryCfg := retry.DefaultRetryConfig(cfg)
+	retryCfg.ShouldRetry = func(err error) bool {
+		// Check if error is classified and retryable
+		if classified, ok := err.(*rrerrors.ClassifiedError); ok {
+			return rrerrors.IsRetryable(classified.Category)
+		}
+		return false // Non-classified errors fail immediately
+	}
+
+	// Execute recording with retry
+	if err := retry.Retry(ctx, retryCfg, func() error {
+		// Validate RTSP before each attempt (fresh check per D-34)
+		if err := validator.ValidateRTSP(cfg.URL, 10*time.Second); err != nil {
+			return err
+		}
+		return rec.Record(cfg.URL)
+	}); err != nil {
+		return err // Error already formatted by retry.OnFailure
 	}
 
 	return nil
