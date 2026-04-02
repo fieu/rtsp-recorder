@@ -134,7 +134,7 @@ Wave 2 (Depends on Wave 1):
 3. Output video plays at accelerated speed showing the condensed timeline
 4. Timelapse works with all existing stop conditions (Ctrl+C, duration, file size)
 
-**Plans:** 3 plans in 2 waves
+**Plans:** 3/3 plans complete
 
 **Wave Structure:**
 ```
@@ -161,7 +161,7 @@ Plans:
 | 1. Foundation & Configuration | 2/2 | **Complete** | 2025-04-02 |
 | 2. Core Recording Engine | 3/3 | **Complete** | 2026-04-02 |
 | 3. Resilience & Feedback | 2/2 | **Complete** | 2026-04-02 |
-| 4. Timelapse Recording | 3/3 | **Complete** | 2026-04-02 |
+| 4. Timelapse Recording | 3/3 | Complete    | 2026-04-02 |
 
 ---
 
