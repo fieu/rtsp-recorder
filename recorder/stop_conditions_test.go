@@ -7,6 +7,7 @@ package recorder
 
 import (
 	"context"
+	"os"
 	"syscall"
 	"testing"
 	"time"
@@ -203,6 +204,144 @@ func TestDurationMonitor_MultipleStarts(t *testing.T) {
 	case <-m.Wait():
 		// Success
 	case <-time.After(2 * time.Second):
+		t.Fatal("Wait() channel did not close")
+	}
+}
+
+// ==================== FileSizeMonitor Tests ====================
+
+// TestFileSizeMonitor_Interface verifies that FileSizeMonitor implements Monitor.
+func TestFileSizeMonitor_Interface(t *testing.T) {
+	var _ Monitor = (*FileSizeMonitor)(nil)
+}
+
+// TestFileSizeMonitor_Name verifies Name() returns "file_size".
+func TestFileSizeMonitor_Name(t *testing.T) {
+	m := NewFileSizeMonitor(100, "/tmp/test.mp4")
+	if got := m.Name(); got != "file_size" {
+		t.Errorf("FileSizeMonitor.Name() = %q, want %q", got, "file_size")
+	}
+}
+
+// TestFileSizeMonitor_ConvertsMBToBytes verifies max size is converted from MB to bytes.
+func TestFileSizeMonitor_ConvertsMBToBytes(t *testing.T) {
+	m := NewFileSizeMonitor(10, "/tmp/test.mp4") // 10 MB
+	expectedBytes := int64(10 * 1024 * 1024)     // 10 MB in bytes
+	if got := m.MaxBytes(); got != expectedBytes {
+		t.Errorf("FileSizeMonitor.MaxBytes() = %d, want %d", got, expectedBytes)
+	}
+}
+
+// TestFileSizeMonitor_ZeroMaxSize_Skips verifies monitor triggers immediately when max is 0.
+func TestFileSizeMonitor_ZeroMaxSize_Skips(t *testing.T) {
+	m := NewFileSizeMonitor(0, "/tmp/test.mp4")
+	ctx := context.Background()
+
+	m.Start(ctx)
+
+	// Should close immediately since max size is 0 (unlimited)
+	select {
+	case <-m.Wait():
+		// Success - channel closed immediately
+	case <-time.After(500 * time.Millisecond):
+		// If it takes longer, that's acceptable
+	}
+}
+
+// TestFileSizeMonitor_TriggersWhenSizeReached verifies channel closes when file reaches limit.
+func TestFileSizeMonitor_TriggersWhenSizeReached(t *testing.T) {
+	// Create a temp file that we'll grow
+	tmpFile, err := os.CreateTemp("", "test_*.mp4")
+	if err != nil {
+		t.Fatalf("Failed to create temp file: %v", err)
+	}
+	defer os.Remove(tmpFile.Name())
+
+	// Set max size to 1KB
+	m := NewFileSizeMonitor(1, tmpFile.Name()) // 1 MB limit
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	m.Start(ctx)
+
+	// Channel should still be open (file is empty)
+	select {
+	case <-m.Wait():
+		t.Fatal("Wait() channel closed before file reached size limit")
+	case <-time.After(100 * time.Millisecond):
+		// Expected - channel still open
+	}
+
+	// Grow the file to exceed the limit (1 MB = 1,048,576 bytes)
+	data := make([]byte, 2*1024*1024) // 2 MB of data
+	if _, err := tmpFile.Write(data); err != nil {
+		t.Fatalf("Failed to write to temp file: %v", err)
+	}
+	tmpFile.Sync()
+
+	// Wait for polling (polls every 1 second per D-27)
+	select {
+	case <-m.Wait():
+		// Success - channel closed when size reached
+	case <-time.After(3 * time.Second):
+		t.Fatal("Wait() channel did not close after file size reached limit")
+	}
+
+	// Verify current size is tracked
+	if m.CurrentSize() < int64(1024*1024) {
+		t.Errorf("CurrentSize() = %d, expected >= %d", m.CurrentSize(), 1024*1024)
+	}
+}
+
+// TestFileSizeMonitor_ContextCancellation verifies early stop on context cancel.
+func TestFileSizeMonitor_ContextCancellation(t *testing.T) {
+	tmpFile, err := os.CreateTemp("", "test_*.mp4")
+	if err != nil {
+		t.Fatalf("Failed to create temp file: %v", err)
+	}
+	defer os.Remove(tmpFile.Name())
+
+	// Set max size to a large value
+	m := NewFileSizeMonitor(1000, tmpFile.Name()) // 1000 MB limit
+	ctx, cancel := context.WithCancel(context.Background())
+
+	m.Start(ctx)
+
+	// Cancel context immediately
+	cancel()
+
+	select {
+	case <-m.Wait():
+		// Success - channel closed early
+	case <-time.After(2 * time.Second):
+		t.Fatal("Wait() channel did not close after context cancellation")
+	}
+}
+
+// TestFileSizeMonitor_MultipleStarts is safe to call Start multiple times.
+func TestFileSizeMonitor_MultipleStarts(t *testing.T) {
+	tmpFile, err := os.CreateTemp("", "test_*.mp4")
+	if err != nil {
+		t.Fatalf("Failed to create temp file: %v", err)
+	}
+	defer os.Remove(tmpFile.Name())
+
+	m := NewFileSizeMonitor(1, tmpFile.Name()) // 1 MB
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	m.Start(ctx)
+	m.Start(ctx) // Should be safe
+
+	// Write to file to trigger stop
+	data := make([]byte, 2*1024*1024) // 2 MB
+	tmpFile.Write(data)
+	tmpFile.Sync()
+
+	select {
+	case <-m.Wait():
+		// Success
+	case <-time.After(3 * time.Second):
 		t.Fatal("Wait() channel did not close")
 	}
 }

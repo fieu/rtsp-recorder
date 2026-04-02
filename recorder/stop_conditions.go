@@ -153,3 +153,105 @@ func (m *DurationMonitor) Name() string {
 func (m *DurationMonitor) Duration() time.Duration {
 	return m.duration
 }
+
+// FileSizeMonitor polls file size periodically and triggers stop when limit is reached.
+// Polls every 1 second per D-27. Updates currentSize for progress reporting (REC-05).
+type FileSizeMonitor struct {
+	mu          sync.Mutex
+	maxBytes    int64 // 0 = unlimited
+	filePath    string
+	ticker      *time.Ticker
+	stop        chan struct{}
+	started     bool
+	currentSize int64 // for progress reporting
+}
+
+// NewFileSizeMonitor creates a new FileSizeMonitor.
+// maxSizeMB is converted to bytes (maxSizeMB * 1024 * 1024).
+// If maxSizeMB is 0, the monitor triggers immediately (unlimited).
+func NewFileSizeMonitor(maxSizeMB int64, filePath string) *FileSizeMonitor {
+	var maxBytes int64
+	if maxSizeMB > 0 {
+		maxBytes = maxSizeMB * 1024 * 1024
+	}
+	return &FileSizeMonitor{
+		maxBytes: maxBytes,
+		filePath: filePath,
+		stop:     make(chan struct{}),
+	}
+}
+
+// Start begins polling file size in a goroutine.
+func (m *FileSizeMonitor) Start(ctx context.Context) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	if m.started {
+		return
+	}
+
+	if m.maxBytes <= 0 {
+		// Unlimited file size - close channel immediately
+		close(m.stop)
+	} else {
+		// Start polling goroutine
+		m.ticker = time.NewTicker(1 * time.Second) // D-27: poll every 1 second
+		go func() {
+			defer close(m.stop)
+			defer m.ticker.Stop()
+
+			for {
+				select {
+				case <-ctx.Done():
+					return
+				case <-m.ticker.C:
+					size, err := m.checkSize()
+					if err != nil {
+						// File may not exist yet, continue polling
+						continue
+					}
+					m.mu.Lock()
+					m.currentSize = size
+					m.mu.Unlock()
+
+					if m.maxBytes > 0 && size >= m.maxBytes {
+						return // Channel will close via defer
+					}
+				}
+			}
+		}()
+	}
+
+	m.started = true
+}
+
+// checkSize returns the current file size.
+func (m *FileSizeMonitor) checkSize() (int64, error) {
+	stat, err := os.Stat(m.filePath)
+	if err != nil {
+		return 0, err
+	}
+	return stat.Size(), nil
+}
+
+// Wait returns a channel that closes when file size reaches limit.
+func (m *FileSizeMonitor) Wait() <-chan struct{} {
+	return m.stop
+}
+
+// Name returns "file_size".
+func (m *FileSizeMonitor) Name() string {
+	return "file_size"
+}
+
+// CurrentSize returns the last polled file size (for progress reporting).
+func (m *FileSizeMonitor) CurrentSize() int64 {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	return m.currentSize
+}
+
+// MaxBytes returns the configured max file size in bytes.
+func (m *FileSizeMonitor) MaxBytes() int64 {
+	return m.maxBytes
+}
