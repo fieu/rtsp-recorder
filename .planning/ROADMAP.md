@@ -21,7 +21,7 @@
 |-------|------|------|--------------|------------------|
 | 1 | Foundation & Configuration | Tool can be configured and validated before recording | Complete    | 2026-04-02 |
 | 2 | Core Recording Engine | User can record RTSP streams with flexible stop conditions | Complete    | 2026-04-02 |
-| 3 | Resilience & Feedback | Recording is robust with retry, progress visibility, and clean error handling | Complete | 2026-04-02 |
+| 3 | Resilience & Feedback | Recording is robust with retry, progress visibility, and clean error handling | Complete    | 2026-04-02 |
 
 ---
 

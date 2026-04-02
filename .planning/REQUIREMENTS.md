@@ -19,7 +19,7 @@
 - [x] **REC-03**: Output filename uses timestamp format (YYYY-MM-DD-HH-MM-SS.mp4)
 - [x] **REC-04**: Output files are saved to current working directory
 - [x] **REC-05**: Tool displays progress (bytes recorded, duration, current file size)
-- [ ] **REC-06**: Tool automatically retries connection on network errors (configurable attempts)
+- [x] **REC-06**: Tool automatically retries connection on network errors (configurable attempts)
 - [x] **REC-07**: Tool validates ffmpeg is installed before starting recording
 
 ### Stop Conditions (STOP)
@@ -32,9 +32,9 @@
 ### Error Handling (ERR)
 
 - [x] **ERR-01**: Tool fails early with clear message if ffmpeg is not found in PATH
-- [ ] **ERR-02**: Tool handles invalid RTSP URLs with descriptive error message
+- [x] **ERR-02**: Tool handles invalid RTSP URLs with descriptive error message
 - [x] **ERR-03**: Tool ensures MP4 file is properly finalized even on unclean shutdown
-- [ ] **ERR-04**: Tool provides meaningful error messages for common ffmpeg failures
+- [x] **ERR-04**: Tool provides meaningful error messages for common ffmpeg failures
 
 ## v2 Requirements
 
@@ -75,16 +75,16 @@ Which phases cover which requirements. Updated during roadmap creation.
 | REC-03 | Phase 2 | Complete |
 | REC-04 | Phase 2 | Complete |
 | REC-05 | Phase 2 | Complete |
-| REC-06 | Phase 3 | Pending |
+| REC-06 | Phase 3 | Complete |
 | REC-07 | Phase 1 | Complete |
 | STOP-01 | Phase 2 | Complete |
 | STOP-02 | Phase 2 | Complete |
 | STOP-03 | Phase 2 | Complete |
 | STOP-04 | Phase 2 | Complete |
 | ERR-01 | Phase 1 | Complete |
-| ERR-02 | Phase 3 | Pending |
+| ERR-02 | Phase 3 | Complete |
 | ERR-03 | Phase 2 | Complete |
-| ERR-04 | Phase 3 | Pending |
+| ERR-04 | Phase 3 | Complete |
 
 **Coverage:**
 - v1 requirements: 18 total
