@@ -42,7 +42,11 @@
 3. User can override any config value via CLI flags or environment variables (following precedence: flags > env > config > defaults)
 4. Tool fails immediately with a clear error message if ffmpeg is not found in PATH, before attempting any recording
 
-**Plans:** TBD
+**Plans:** 2 plans
+
+Plans:
+- [ ] 01-01-PLAN.md — CLI scaffolding, config system, ffmpeg validation (Wave 1)
+- [ ] 01-02-PLAN.md — Record command with flag support, completing config precedence (Wave 2)
 
 ---
 
@@ -90,7 +94,7 @@
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation & Configuration | 0/3 | Not started | — |
+| 1. Foundation & Configuration | 0/2 | Not started | — |
 | 2. Core Recording Engine | 0/3 | Not started | — |
 | 3. Resilience & Feedback | 0/2 | Not started | — |
 
