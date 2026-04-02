@@ -17,9 +17,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/rs/zerolog"
 	"rtsp-recorder/config"
 	rrerrors "rtsp-recorder/internal/errors"
+
+	"github.com/rs/zerolog"
 )
 
 // RetryConfig configures the retry behavior.
@@ -165,7 +166,7 @@ func toLower(s string) string {
 	for i := 0; i < len(s); i++ {
 		c := s[i]
 		if c >= 'A' && c <= 'Z' {
-			c = c + ('a' - 'A')
+			c += ('a' - 'A')
 		}
 		result[i] = c
 	}

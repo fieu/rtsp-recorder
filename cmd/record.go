@@ -13,14 +13,15 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"rtsp-recorder/config"
 	rrerrors "rtsp-recorder/internal/errors"
 	"rtsp-recorder/internal/retry"
 	"rtsp-recorder/internal/validator"
 	"rtsp-recorder/logger"
 	"rtsp-recorder/recorder"
+
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // recordCmd represents the record command
@@ -60,7 +61,7 @@ func init() {
 
 	// Timelapse flag per D-49, D-52
 	recordCmd.Flags().DurationP("timelapse", "l", 0, "Target output duration for timelapse (e.g., 10s, 1m). Requires --duration.")
-	viper.BindPFlag("timelapse_duration", recordCmd.Flags().Lookup("timelapse"))
+	_ = viper.BindPFlag("timelapse_duration", recordCmd.Flags().Lookup("timelapse"))
 }
 
 func runRecord(cmd *cobra.Command, args []string) error {

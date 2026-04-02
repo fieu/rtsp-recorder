@@ -58,7 +58,9 @@ func ValidateRTSP(rtspURL string, timeout time.Duration) error {
 	defer conn.Close()
 
 	// Set read/write timeouts on connection
-	conn.SetDeadline(time.Now().Add(timeout))
+	if err := conn.SetDeadline(time.Now().Add(timeout)); err != nil {
+		return fmt.Errorf("[ERROR] Failed to set connection timeout: %w", err)
+	}
 
 	// Build and send DESCRIBE request
 	describeReq := buildDESCRIBERequest(rtspURL, host)
@@ -209,7 +211,9 @@ func parseStatusLine(response string) (int, string, error) {
 	}
 
 	var statusCode int
-	fmt.Sscanf(matches[1], "%d", &statusCode)
+	if _, err := fmt.Sscanf(matches[1], "%d", &statusCode); err != nil {
+		return 0, "", fmt.Errorf("failed to parse status code: %w", err)
+	}
 	statusText := matches[2]
 
 	return statusCode, statusText, nil

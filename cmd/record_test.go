@@ -10,10 +10,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/rs/zerolog"
 	"rtsp-recorder/config"
 	rrerrors "rtsp-recorder/internal/errors"
 	"rtsp-recorder/internal/retry"
+
+	"github.com/rs/zerolog"
 )
 
 // TestRecordRetryConfig verifies retry config is properly set up from config.

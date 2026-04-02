@@ -9,10 +9,11 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/spf13/cobra"
 	"rtsp-recorder/config"
 	"rtsp-recorder/internal/validator"
 	"rtsp-recorder/logger"
+
+	"github.com/spf13/cobra"
 )
 
 // validateCmd represents the validate command

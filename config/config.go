@@ -110,29 +110,29 @@ func DefaultConfig() *Config {
 func BindFlags(cmd *cobra.Command) {
 	// URL flag
 	cmd.Flags().StringP("url", "u", "", "RTSP stream URL to record (required if not in config file)")
-	viper.BindPFlag("url", cmd.Flags().Lookup("url"))
+	_ = viper.BindPFlag("url", cmd.Flags().Lookup("url"))
 
 	// Duration flag (60m default)
 	cmd.Flags().DurationP("duration", "d", 60*time.Minute, "Maximum recording duration (e.g., 30m, 1h, 0=unlimited)")
-	viper.BindPFlag("duration", cmd.Flags().Lookup("duration"))
+	_ = viper.BindPFlag("duration", cmd.Flags().Lookup("duration"))
 
 	// Max file size flag (1024MB default)
 	cmd.Flags().Int64P("max-file-size", "s", 1024, "Maximum file size in MB before stopping (0=unlimited)")
-	viper.BindPFlag("max_file_size", cmd.Flags().Lookup("max-file-size"))
+	_ = viper.BindPFlag("max_file_size", cmd.Flags().Lookup("max-file-size"))
 
 	// Retry attempts flag (3 default)
 	cmd.Flags().IntP("retry-attempts", "r", 3, "Number of retry attempts on connection failure")
-	viper.BindPFlag("retry_attempts", cmd.Flags().Lookup("retry-attempts"))
+	_ = viper.BindPFlag("retry_attempts", cmd.Flags().Lookup("retry-attempts"))
 
 	// FFmpeg path flag
 	cmd.Flags().StringP("ffmpeg-path", "f", "", "Path to ffmpeg binary (default: search PATH)")
-	viper.BindPFlag("ffmpeg_path", cmd.Flags().Lookup("ffmpeg-path"))
+	_ = viper.BindPFlag("ffmpeg_path", cmd.Flags().Lookup("ffmpeg-path"))
 
 	// Filename template flag
 	cmd.Flags().StringP("filename-template", "t", "", "Output filename template (default: recording_{{.Timestamp}}.mp4)")
-	viper.BindPFlag("filename_template", cmd.Flags().Lookup("filename-template"))
+	_ = viper.BindPFlag("filename_template", cmd.Flags().Lookup("filename-template"))
 
 	// Progress interval flag (10s default, 0=disabled per D-100, D-102)
 	cmd.Flags().DurationP("progress-interval", "p", 10*time.Second, "Progress log interval (e.g., 10s, 30s, 1m, 0=disabled)")
-	viper.BindPFlag("progress_interval", cmd.Flags().Lookup("progress-interval"))
+	_ = viper.BindPFlag("progress_interval", cmd.Flags().Lookup("progress-interval"))
 }

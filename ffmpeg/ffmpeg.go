@@ -182,7 +182,7 @@ func (c *Cmd) Stop() error {
 	// Step 3: Escalate to SIGTERM
 	c.mu.Lock()
 	if c.cmd != nil && c.cmd.Process != nil {
-		c.cmd.Process.Signal(syscall.SIGTERM)
+		_ = c.cmd.Process.Signal(syscall.SIGTERM)
 	}
 	c.mu.Unlock()
 
@@ -199,7 +199,7 @@ func (c *Cmd) Stop() error {
 	// Platform-specific implementation in ffmpeg_unix.go / ffmpeg_windows.go
 	c.mu.Lock()
 	if c.cmd != nil && c.cmd.Process != nil {
-		killProcessGroup(c.cmd.Process.Pid)
+		_ = killProcessGroup(c.cmd.Process.Pid)
 	}
 	c.mu.Unlock()
 

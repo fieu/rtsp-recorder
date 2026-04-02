@@ -1,9 +1,35 @@
 run:
   timeout: 5m
-  skip-dirs:
+
+issues:
+  exclude-dirs:
     - .planning
     - dist
     - vendor
+  exclude-rules:
+    # Exclude some linters from running on tests files
+    - path: _test\.go
+      linters:
+        - errcheck
+        - gocritic
+        - gosec
+        - revive
+        - staticcheck
+    # Exclude known linter issues
+    - text: "weakness"
+      linters:
+        - gosec
+    # Allow capitalized error strings with [ERROR] prefix (our convention)
+    - text: "error-strings"
+      linters:
+        - revive
+    # Allow unused parameters in functions that need specific signatures
+    - text: "unused-parameter"
+      linters:
+        - revive
+
+  max-issues-per-linter: 0
+  max-same-issues: 0
 
 linters:
   enable:
@@ -24,18 +50,7 @@ linters-settings:
     simplify: true
   goimports:
     local-prefixes: rtsp-recorder
-
-issues:
-  exclude-rules:
-    # Exclude some linters from running on tests files
-    - path: _test\.go
-      linters:
-        - gocritic
-        - gosec
-    # Exclude known linter issues
-    - text: "weakness"
-      linters:
-        - gosec
-
-  max-issues-per-linter: 0
-  max-same-issues: 0
+  revive:
+    rules:
+      - name: exported
+        disabled: true

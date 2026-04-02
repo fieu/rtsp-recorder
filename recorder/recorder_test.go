@@ -9,9 +9,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/rs/zerolog"
 	"rtsp-recorder/config"
 	"rtsp-recorder/ffmpeg"
+
+	"github.com/rs/zerolog"
 )
 
 // TestRecorder_New tests that New() creates a Recorder with config reference

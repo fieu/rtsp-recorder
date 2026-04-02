@@ -10,10 +10,11 @@ import (
 	"os"
 	"time"
 
+	"rtsp-recorder/logger"
+
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"rtsp-recorder/logger"
 )
 
 var cfgFile string
@@ -65,12 +66,12 @@ func init() {
 
 	// Log level flag (per D-67: no shorthand to avoid confusion with timelapse -l)
 	rootCmd.PersistentFlags().String("log-level", "info", "Log level (debug, info, warn, error)")
-	viper.BindPFlag("log_level", rootCmd.PersistentFlags().Lookup("log-level"))
+	_ = viper.BindPFlag("log_level", rootCmd.PersistentFlags().Lookup("log-level"))
 	viper.SetDefault("log_level", "info")
 
 	// No color flag (per D-88)
 	rootCmd.PersistentFlags().Bool("no-color", false, "Disable colored output")
-	viper.BindPFlag("no_color", rootCmd.PersistentFlags().Lookup("no-color"))
+	_ = viper.BindPFlag("no_color", rootCmd.PersistentFlags().Lookup("no-color"))
 	viper.SetDefault("no_color", false)
 }
 
@@ -98,20 +99,13 @@ func initConfig() {
 
 	// If a config file is found, read it in
 	if err := viper.ReadInConfig(); err != nil {
-		// Config file is optional (per D-06), only report if it's not a "not found" error
-		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
-			// Check if it's a file not found error by checking the error string
-			if os.IsNotExist(err) || isFileNotFoundError(err) {
-				// Config file doesn't exist, which is OK
-				// Continue to initialize logger with defaults
-			} else {
-				fmt.Fprintf(os.Stderr, "[ERROR] Failed to read config file: %v\n", err)
-				os.Exit(1)
-			}
+		if !os.IsNotExist(err) && !isFileNotFoundError(err) {
+			fmt.Fprintf(os.Stderr, "[ERROR] Failed to read config file: %v\n", err)
+			os.Exit(1)
 		}
-	} else {
-		// Config file loaded - will log after logger is initialized
+		// Config file doesn't exist, which is OK - continue with defaults
 	}
+	// If config file loaded successfully, continue (will log after logger init)
 
 	// Initialize logger after config is loaded (per D-73)
 	// This ensures log level can be set via flag, env, or config

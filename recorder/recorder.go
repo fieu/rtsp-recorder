@@ -15,10 +15,11 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/rs/zerolog"
 	"rtsp-recorder/config"
 	"rtsp-recorder/ffmpeg"
 	"rtsp-recorder/internal/utils"
+
+	"github.com/rs/zerolog"
 )
 
 // Recorder coordinates recording sessions with FFmpeg, stop conditions,
@@ -287,11 +288,12 @@ func formatDuration(d time.Duration) string {
 
 // formatBitrate formats bits per second as human-readable string.
 func formatBitrate(bps float64) string {
-	if bps < 1000 {
+	switch {
+	case bps < 1000:
 		return fmt.Sprintf("%.0f bps", bps)
-	} else if bps < 1000000 {
+	case bps < 1000000:
 		return fmt.Sprintf("%.1f Kbps", bps/1000)
-	} else {
+	default:
 		return fmt.Sprintf("%.1f Mbps", bps/1000000)
 	}
 }

@@ -12,9 +12,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/rs/zerolog"
 	"rtsp-recorder/config"
 	rrerrors "rtsp-recorder/internal/errors"
+
+	"github.com/rs/zerolog"
 )
 
 // TestRetry_SuccessFirstAttempt verifies no retries when operation succeeds.
