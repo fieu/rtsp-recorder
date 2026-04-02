@@ -190,7 +190,7 @@ Plans:
 3. All existing log messages use appropriate log levels (debug, info, warn, error)
 4. Logs are structured with timestamps and log levels
 
-**Plans:** 2/2 complete
+**Plans:** 2/2 plans complete
 
 Plans:
 - [x] 06-01-PLAN.md — Zap logger setup with config integration (Wave 1)
@@ -216,7 +216,7 @@ Wave 2 (Depends on Wave 1):
 | 3. Resilience & Feedback | 2/2 | **Complete** | 2026-04-02 |
 | 4. Timelapse Recording | 3/3 | Complete    | 2026-04-02 |
 | 5. Documentation & README | 1/1 | **Complete** | 2026-04-02 |
-| 6. Structured Logging with Zap | 2/2 | **Complete** | 2026-04-02 |
+| 6. Structured Logging with Zap | 2/2 | Complete    | 2026-04-02 |
 
 ---
 
