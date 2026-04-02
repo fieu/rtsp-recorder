@@ -38,9 +38,20 @@ type RetryConfig struct {
 // Context cancellation is checked between attempts.
 // The last error is preserved and returned when all attempts are exhausted.
 func Retry(ctx context.Context, cfg RetryConfig, operation func() error) error {
+	// Ensure at least one attempt
+	maxAttempts := cfg.MaxAttempts
+	if maxAttempts <= 0 {
+		maxAttempts = 1
+	}
+
+	// Use background context if none provided
+	if ctx == nil {
+		ctx = context.Background()
+	}
+
 	var lastErr error
 
-	for attempt := 1; attempt <= cfg.MaxAttempts; attempt++ {
+	for attempt := 1; attempt <= maxAttempts; attempt++ {
 		// Execute the operation
 		if err := operation(); err != nil {
 			lastErr = err
@@ -55,13 +66,13 @@ func Retry(ctx context.Context, cfg RetryConfig, operation func() error) error {
 			}
 
 			// If this was the last attempt, we're done
-			if attempt >= cfg.MaxAttempts {
+			if attempt >= maxAttempts {
 				break
 			}
 
 			// Notify about retry
 			if cfg.OnRetry != nil {
-				cfg.OnRetry(attempt, cfg.MaxAttempts, cfg.Delay)
+				cfg.OnRetry(attempt, maxAttempts, cfg.Delay)
 			}
 
 			// Wait for delay, checking context cancellation
@@ -79,10 +90,10 @@ func Retry(ctx context.Context, cfg RetryConfig, operation func() error) error {
 
 	// All attempts exhausted
 	if cfg.OnFailure != nil {
-		return cfg.OnFailure(cfg.MaxAttempts, lastErr)
+		return cfg.OnFailure(maxAttempts, lastErr)
 	}
 
-	return fmt.Errorf("failed after %d attempts: %w", cfg.MaxAttempts, lastErr)
+	return fmt.Errorf("failed after %d attempts: %w", maxAttempts, lastErr)
 }
 
 // DefaultRetryConfig creates a RetryConfig from the application Config.
