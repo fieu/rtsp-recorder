@@ -175,6 +175,25 @@ Plans:
 
 ---
 
+### Phase 6: Structured Logging with Zap
+
+**Goal:** Integrate Uber's zap library for structured logging with configurable log levels via YAML config, environment variable, or CLI flag
+
+**Depends on:** Phase 1 (Foundation & Configuration)
+
+**Requirements:** LOG-01, LOG-02, LOG-03
+
+**Success Criteria** (what must be TRUE):
+
+1. Zap logger is integrated and replaces existing fmt.Println logging
+2. Log level can be configured via `--log-level` flag, `RTSP_RECORDER_LOG_LEVEL` env var, or `log_level` in YAML config
+3. All existing log messages use appropriate log levels (debug, info, warn, error)
+4. Logs are structured with timestamps and log levels
+
+**Plans:** TBD
+
+---
+
 ## Progress Tracking
 
 | Phase | Plans Complete | Status | Completed |
@@ -184,6 +203,7 @@ Plans:
 | 3. Resilience & Feedback | 2/2 | **Complete** | 2026-04-02 |
 | 4. Timelapse Recording | 3/3 | Complete    | 2026-04-02 |
 | 5. Documentation & README | 1/1 | **Complete** | 2026-04-02 |
+| 6. Structured Logging with Zap | 0/TBD | Not started | — |
 
 ---
 
