@@ -134,7 +134,23 @@ Wave 2 (Depends on Wave 1):
 3. Output video plays at accelerated speed showing the condensed timeline
 4. Timelapse works with all existing stop conditions (Ctrl+C, duration, file size)
 
-**Plans:** TBD
+**Plans:** 3 plans in 2 waves
+
+**Wave Structure:**
+```
+Wave 1 (Parallel):
+  04-01 (Config & flags) ──┐
+                           ├──→ Wave 2
+  04-02 (FFmpeg filter) ───┘
+
+Wave 2:
+  04-03 (Progress display & integration)
+```
+
+Plans:
+- [ ] 04-01-PLAN.md — Timelapse config field and flag registration (Wave 1)
+- [ ] 04-02-PLAN.md — FFmpeg timelapse filter implementation (Wave 1)
+- [ ] 04-03-PLAN.md — Progress display and stop condition integration (Wave 2)
 
 ---
 
@@ -145,7 +161,7 @@ Wave 2 (Depends on Wave 1):
 | 1. Foundation & Configuration | 2/2 | **Complete** | 2025-04-02 |
 | 2. Core Recording Engine | 3/3 | **Complete** | 2026-04-02 |
 | 3. Resilience & Feedback | 2/2 | **Complete** | 2026-04-02 |
-| 4. Timelapse Recording | 0/TBD | Not started | — |
+| 4. Timelapse Recording | 0/3 | Planned | — |
 
 ---
 
