@@ -15,6 +15,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
 	"rtsp-recorder/config"
 	rrerrors "rtsp-recorder/internal/errors"
 	"rtsp-recorder/internal/retry"
@@ -63,7 +64,7 @@ func init() {
 }
 
 func runRecord(cmd *cobra.Command, args []string) error {
-	fmt.Println("[INFO] Starting rtsp-recorder...")
+	Logger.Info("Starting rtsp-recorder")
 
 	// Load configuration (flags have already been bound to viper)
 	cfg, err := config.Load()
@@ -74,7 +75,7 @@ func runRecord(cmd *cobra.Command, args []string) error {
 	// If URL provided as positional argument, override config
 	if len(args) > 0 {
 		cfg.URL = args[0]
-		fmt.Printf("[INFO] Using URL from command line: %s\n", cfg.URL)
+		Logger.Info("Using URL from command line", zap.String("url", cfg.URL))
 	}
 
 	// Validate URL is present
@@ -91,38 +92,36 @@ func runRecord(cmd *cobra.Command, args []string) error {
 	}
 
 	// Validate ffmpeg availability
-	fmt.Println("[INFO] Checking FFmpeg installation...")
+	Logger.Info("Checking FFmpeg installation")
 	version, path, err := validator.ValidateFFmpeg()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 		return fmt.Errorf("[ERROR] Cannot start recording: FFmpeg not available")
 	}
-	fmt.Printf("[INFO] FFmpeg found: %s (version %s)\n", path, version)
+	Logger.Info("FFmpeg found", zap.String("path", path), zap.String("version", version))
 
 	// Note: RTSP validation is now done inside the retry loop for fresh checks
-	// Display configuration being used
-	fmt.Println("\n[INFO] Recording configuration:")
-	fmt.Printf("  URL: %s\n", cfg.URL)
-	fmt.Printf("  Duration: %v\n", cfg.Duration)
-	if cfg.MaxFileSize > 0 {
-		fmt.Printf("  Max File Size: %d MB\n", cfg.MaxFileSize)
-	} else {
-		fmt.Println("  Max File Size: unlimited")
-	}
-	if cfg.RetryAttempts > 0 {
-		fmt.Printf("  Retry Attempts: %d\n", cfg.RetryAttempts)
-	}
+	// Display configuration being used with structured logging
+	Logger.Info("Recording configuration",
+		zap.String("url", cfg.URL),
+		zap.Duration("duration", cfg.Duration),
+		zap.Int64("max_file_size_mb", cfg.MaxFileSize),
+		zap.Int("retry_attempts", cfg.RetryAttempts),
+	)
 
 	// Per D-59: Display timelapse info when enabled
 	if cfg.TimelapseDuration > 0 {
 		speedup := float64(cfg.Duration) / float64(cfg.TimelapseDuration)
-		fmt.Printf("  Timelapse: %.0fx speed (%v -> %v)\n", speedup, cfg.Duration, cfg.TimelapseDuration)
-		fmt.Println("  Audio: disabled (timelapse mode)")
+		Logger.Info("Timelapse enabled",
+			zap.Float64("speedup", speedup),
+			zap.Duration("input_duration", cfg.Duration),
+			zap.Duration("output_duration", cfg.TimelapseDuration),
+		)
+		Logger.Info("Audio disabled (timelapse mode)")
 	}
 
-	fmt.Println()
-	fmt.Println("[INFO] Starting recording...")
-	fmt.Println("[INFO] Press Ctrl+C to stop")
+	Logger.Info("Starting recording")
+	Logger.Info("Press Ctrl+C to stop")
 
 	// Create signal context for graceful shutdown
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
