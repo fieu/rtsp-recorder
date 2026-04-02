@@ -207,6 +207,25 @@ Wave 2 (Depends on Wave 1):
 
 ---
 
+### Phase 7: Colored Logging with Zerolog
+
+**Goal:** Replace Uber's zap library with zerolog for better terminal experience with colored output when running in a TTY
+
+**Depends on:** Phase 6 (Structured Logging with Zap)
+
+**Requirements:** LOG-04, LOG-05
+
+**Success Criteria** (what must be TRUE):
+
+1. Zap library is fully replaced with zerolog
+2. Logs are colored when outputting to a terminal (TTY detection)
+3. Log format remains structured and readable
+4. All existing log calls work with zerolog API
+
+**Plans:** TBD
+
+---
+
 ## Progress Tracking
 
 | Phase | Plans Complete | Status | Completed |
@@ -217,6 +236,7 @@ Wave 2 (Depends on Wave 1):
 | 4. Timelapse Recording | 3/3 | Complete    | 2026-04-02 |
 | 5. Documentation & README | 1/1 | **Complete** | 2026-04-02 |
 | 6. Structured Logging with Zap | 2/2 | Complete    | 2026-04-02 |
+| 7. Colored Logging with Zerolog | 0/TBD | Not started | — |
 
 ---
 
