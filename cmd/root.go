@@ -10,9 +10,9 @@ import (
 	"os"
 	"time"
 
+	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"go.uber.org/zap"
 	"rtsp-recorder/logger"
 )
 
@@ -20,7 +20,7 @@ var cfgFile string
 
 // Logger is the global structured logger accessible throughout the application.
 // It is initialized in initConfig() after configuration is loaded.
-var Logger *zap.Logger
+var Logger zerolog.Logger
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -67,6 +67,11 @@ func init() {
 	rootCmd.PersistentFlags().String("log-level", "info", "Log level (debug, info, warn, error)")
 	viper.BindPFlag("log_level", rootCmd.PersistentFlags().Lookup("log-level"))
 	viper.SetDefault("log_level", "info")
+
+	// No color flag (per D-88)
+	rootCmd.PersistentFlags().Bool("no-color", false, "Disable colored output")
+	viper.BindPFlag("no_color", rootCmd.PersistentFlags().Lookup("no-color"))
+	viper.SetDefault("no_color", false)
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -110,8 +115,8 @@ func initConfig() {
 	// Initialize logger after config is loaded (per D-73)
 	// This ensures log level can be set via flag, env, or config
 	logLevel := viper.GetString("log_level")
-	var err error
-	Logger, err = logger.New(logLevel)
+	noColor := viper.GetBool("no_color")
+	err := logger.New(logLevel, noColor)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "[ERROR] Invalid log level: %v\n", err)
 		os.Exit(1)
@@ -119,7 +124,7 @@ func initConfig() {
 
 	// Log config file usage after logger is initialized
 	if viper.ConfigFileUsed() != "" {
-		Logger.Info("Using config file", zap.String("path", viper.ConfigFileUsed()))
+		logger.Logger.Info().Str("path", viper.ConfigFileUsed()).Msg("Using config file")
 	}
 }
 
