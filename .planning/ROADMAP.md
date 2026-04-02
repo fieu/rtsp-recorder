@@ -148,7 +148,7 @@ Wave 2:
 ```
 
 Plans:
-- [ ] 04-01-PLAN.md — Timelapse config field and flag registration (Wave 1)
+- [x] 04-01-PLAN.md — Timelapse config field and flag registration (Wave 1)
 - [ ] 04-02-PLAN.md — FFmpeg timelapse filter implementation (Wave 1)
 - [ ] 04-03-PLAN.md — Progress display and stop condition integration (Wave 2)
 
@@ -161,7 +161,7 @@ Plans:
 | 1. Foundation & Configuration | 2/2 | **Complete** | 2025-04-02 |
 | 2. Core Recording Engine | 3/3 | **Complete** | 2026-04-02 |
 | 3. Resilience & Feedback | 2/2 | **Complete** | 2026-04-02 |
-| 4. Timelapse Recording | 0/3 | Planned | — |
+| 4. Timelapse Recording | 1/3 | **In Progress** | — |
 
 ---
 

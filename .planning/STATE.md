@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 3
-current_plan: Not started
-status: completed
-last_updated: "2026-04-02T10:05:06.154Z"
+current_phase: 4
+current_plan: 04-01 complete
+status: in-progress
+last_updated: "2026-04-02T10:10:00.000Z"
 progress:
-  total_phases: 3
+  total_phases: 4
   completed_phases: 3
-  total_plans: 7
-  completed_plans: 7
-  percent: 88
+  total_plans: 10
+  completed_plans: 8
+  percent: 80
 ---
 
 # State: rtsp-recorder
@@ -38,13 +38,13 @@ progress:
 
 ## Current Position
 
-**Current Phase:** 3
+**Current Phase:** 4 (Timelapse Recording)
 
-**Current Plan:** Not started
+**Current Plan:** 04-01 complete
 
-**Status:** Milestone complete
+**Status:** In Progress
 
-**Progress:** [██████████████░░░░░░] 88%
+**Progress:** [████████████░░░░░░░░] 80%
 
 ---
 
@@ -54,7 +54,8 @@ progress:
 |-------|------|--------|--------------|------------|
 | 1 | Foundation & Configuration | **Complete** | 6/6 | 2/2 |
 | 2 | Core Recording Engine | **Complete** | 7/7 | 3/3 |
-| 3 | Resilience & Feedback | **Complete** | 1/5 | 2/2 |
+| 3 | Resilience & Feedback | **Complete** | 5/5 | 2/2 |
+| 4 | Timelapse Recording | **In Progress** | 0/3 | 1/3 |
 
 ---
 
@@ -62,9 +63,9 @@ progress:
 
 | Metric | Value |
 |--------|-------|
-| Requirements completed | 14/18 |
-| Phases completed | 2/3 |
-| Plans completed | 7/8 |
+| Requirements completed | 14/21 |
+| Phases completed | 3/4 |
+| Plans completed | 8/10 |
 | Success criteria verified | 14/14 |
 | Defects found | 2 |
 | Defects fixed | 2 |
@@ -73,6 +74,7 @@ progress:
 |------|----------|-------|
 | 03-01 | 148s | 3 |
 | 03-02 | 180s | 3 |
+| 04-01 | ~300s | 3 |
 
 ---
 
@@ -107,6 +109,10 @@ progress:
 | Full Record() re-attempt on retry | Fresh ffmpeg process per attempt per D-34 | 2026-04-02 |
 | RTSP validation inside retry loop | Fresh connectivity check each attempt per D-34 | 2026-04-02 |
 | Signal context for graceful shutdown | Allows cancellation during retry delays | 2026-04-02 |
+| Real-time frame dropping for timelapse | More efficient than post-processing per D-45 | 2026-04-02 |
+| --timelapse value is target OUTPUT | User specifies desired output duration per D-52 | 2026-04-02 |
+| Timelapse requires --duration | Cannot calculate speedup without recording duration per D-51 | 2026-04-02 |
+| Minimum 1s timelapse duration | Prevent invalid ultra-short outputs per D-55 | 2026-04-02 |
 
 ### Open Questions
 
@@ -126,26 +132,21 @@ progress:
 
 ## Session Continuity
 
-**Last action:** Completed Plan 03-02 (Retry logic for network errors)
+**Last action:** Completed Plan 04-01 (Timelapse config and flag registration)
 
-**Next action:** Milestone completion review — Phase 3 complete, ready for v1.0
+**Next action:** Plan 04-02 (FFmpeg timelapse filter implementation)
 
 **Blockers:** None
 
 **Working Notes:**
 
-- Plan 03-02 complete: Retry logic with backoff implemented
-- Retry package: RetryConfig with ShouldRetry, OnRetry, OnFailure callbacks
-- NetworkError triggers retry, all other categories fail immediately
-- Fixed 5-second delay between attempts, uses cfg.RetryAttempts (default 3)
-- RTSP validation runs fresh inside retry loop per D-34
-- Signal context added for graceful shutdown during retry delays
-- 26 test functions total: 14 in retry package, 12 in cmd package
-- All tests pass, >80% coverage on retry logic
-- User feedback: "[INFO] Retry 1/3 after 5s..." and "[ERROR] Recording failed after 3 attempts..."
-- Phase 3: 2/2 plans complete, 1/5 requirements satisfied (REC-06 now complete)
-- Total: 8 plans complete, 14/18 requirements satisfied
-- Ready for milestone completion: v1.0 MVP complete
+- Plan 04-01 complete: Timelapse configuration support added
+- Config: TimelapseDuration field with mapstructure tag
+- Flag: --timelapse/-l registered and bound to timelapse_duration
+- Validation: Requires --duration, minimum 1s, clear error messages
+- 11 new tests added (3 config + 8 cmd), all passing
+- Build succeeds, flag appears in help
+- Ready for 04-02: FFmpeg filter implementation
 
 ---
 
@@ -154,7 +155,8 @@ progress:
 | Milestone | Target Phase | Status |
 |-----------|--------------|--------|
 | v1.0 MVP | Phase 3 | **Complete** |
+| v1.1 Timelapse | Phase 4 | **In Progress** |
 
 ---
 
-*State updated: 2026-04-02 after Plan 03-02 completion*
+*State updated: 2026-04-02 after Plan 04-01 completion*
