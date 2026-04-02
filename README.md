@@ -160,13 +160,3 @@ go test ./...
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Acknowledgments
-
-- Built with [Cobra](https://github.com/spf13/cobra)
-- Configuration powered by [Viper](https://github.com/spf13/viper)
-- Video processing by [FFmpeg](https://ffmpeg.org/)
-
----
-
-Made for the RTSP recording community
