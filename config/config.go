@@ -39,6 +39,9 @@ type Config struct {
 	// FilenameTemplate is the template for output filenames
 	// Supports {{.Timestamp}} placeholder
 	FilenameTemplate string `mapstructure:"filename_template"`
+
+	// LogLevel is the logging level: debug, info, warn, error
+	LogLevel string `mapstructure:"log_level"`
 }
 
 // Load reads configuration from Viper and returns a Config struct.
@@ -85,6 +88,7 @@ func DefaultConfig() *Config {
 		RetryAttempts:     3,
 		FFmpegPath:        "ffmpeg",
 		FilenameTemplate:  "recording_{{.Timestamp}}.mp4",
+		LogLevel:          "info",
 	}
 }
 
