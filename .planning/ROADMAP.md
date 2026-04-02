@@ -244,7 +244,7 @@ Plans:
 3. ✓ Each log message shows current recording stats (bytes, duration, bitrate, timelapse fields)
 4. ✓ Configurable via YAML config: `progress_interval` field or `--progress-interval` flag
 
-**Plans:** 1/1 complete
+**Plans:** 1/1 plans complete
 
 Plans:
 - [x] 08-01-PLAN.md — Replace \r progress bar with periodic structured logging (Wave 1)
