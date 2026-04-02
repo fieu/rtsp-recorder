@@ -3,14 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 current_phase: 2
-current_plan: Not started
-status: planning
-last_updated: "2026-04-02T09:37:46.982Z"
+current_plan: 02 (Stop Conditions) - COMPLETE
+status: executing
+last_updated: "2026-04-02T10:15:00.000Z"
 progress:
   total_phases: 3
   completed_phases: 1
-  total_plans: 2
-  completed_plans: 2
+  total_plans: 5
+  completed_plans: 5
+  percent: 100
 ---
 
 # State: rtsp-recorder
@@ -39,14 +40,14 @@ progress:
 
 **Current Phase:** 2
 
-**Current Plan:** Not started
+**Current Plan:** 02 (Stop Conditions) - COMPLETE
 
-**Status:** Ready to plan
+**Status:** Executing
 
-**Progress:** 6/18 requirements complete, 2/8 plans complete
+**Progress:** [██████████] 100%
 
 ```
-[████                ] 22%
+[████████████        ] 60%
 ```
 
 ---
@@ -56,7 +57,7 @@ progress:
 | Phase | Name | Status | Req Complete | Plans Done |
 |-------|------|--------|--------------|------------|
 | 1 | Foundation & Configuration | **Complete** | 6/6 | 2/2 |
-| 2 | Core Recording Engine | Ready to start | 0/7 | 0/3 |
+| 2 | Core Recording Engine | **In Progress** | 3/7 | 2/3 |
 | 3 | Resilience & Feedback | Not started | 0/5 | 0/2 |
 
 ---
@@ -65,10 +66,10 @@ progress:
 
 | Metric | Value |
 |--------|-------|
-| Requirements completed | 6/18 |
-| Phases completed | 0/3 |
-| Plans completed | 2/8 |
-| Success criteria verified | 6/6 |
+| Requirements completed | 10/18 |
+| Phases completed | 1/3 |
+| Plans completed | 4/8 |
+| Success criteria verified | 10/10 |
 | Defects found | 1 |
 | Defects fixed | 1 |
 
@@ -88,6 +89,10 @@ progress:
 | Conservative defaults | 60m duration, 1024MB max, 3 retries for safe operation | 2025-04-02 |
 | All flags have short forms | Short flags are convenient for frequent use (e.g., -d 30m) | 2025-04-02 |
 | Positional URL argument | More intuitive than --url flag for primary input | 2025-04-02 |
+| First trigger wins for stop conditions | Any one stopping condition causes all to stop (Ctrl+C OR duration OR file size) | 2025-04-02 |
+| Use signal.NotifyContext | Go 1.16+ best practice, buffered internally avoids signal drops | 2025-04-02 |
+| Go timer instead of ffmpeg -t | Avoids ffmpeg startup time inaccuracy, more precise | 2025-04-02 |
+| Poll file size every 1 second | Balance between accuracy and system load | 2025-04-02 |
 
 ### Open Questions
 
@@ -107,19 +112,22 @@ progress:
 
 ## Session Continuity
 
-**Last action:** Completed Plan 01-02 (Record command with flags, file utilities, complete config precedence)
+**Last action:** Completed Plan 02-02 (Stop Conditions: SignalMonitor, DurationMonitor, FileSizeMonitor, StopManager)
 
-**Next action:** Transition to Phase 2 Core Recording Engine
+**Next action:** Plan 02-03 (Recording Orchestration) or complete Phase 2
 
 **Blockers:** None
 
 **Working Notes:**
 
-- Plan 01-02 complete: Record command with all 6 config flags (long + short forms)
-- Config precedence verified: flags > env > config > defaults
-- File utilities ready for Phase 2: GenerateTimestampFilename(), SanitizeFilename()
-- All 11 file utility tests passing
-- Phase 1 Foundation & Configuration complete - 6/6 requirements satisfied
+- Plan 02-02 complete: Stop conditions package with 4 monitor types
+- Monitor interface implemented by SignalMonitor, DurationMonitor, FileSizeMonitor
+- StopManager coordinates with first-trigger-wins semantics
+- All 26 stop condition tests passing
+- Signal handling uses signal.NotifyContext per D-22
+- Duration uses Go timer (not ffmpeg -t) per PITFALLS.md §Pitfall 8
+- File size polls every 1 second per D-27
+- Phase 2 Core Recording Engine: 2/3 plans complete
 
 ---
 
