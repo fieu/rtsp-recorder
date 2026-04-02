@@ -36,6 +36,5 @@ jobs:
         run: |
           VERSION=${GITHUB_REF#refs/tags/}
           gh release create "${VERSION}" \
-            --title "Release ${VERSION}" \
             --generate-notes \
             dist/*
