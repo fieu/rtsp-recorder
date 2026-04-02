@@ -222,7 +222,7 @@ Wave 2 (Depends on Wave 1):
 3. ✓ Log format remains structured and readable
 4. ✓ All existing log calls work with zerolog API
 
-**Plans:** 1/1 complete
+**Plans:** 1/2 plans complete
 
 Plans:
 - [x] 07-01-PLAN.md — Zerolog migration with colored output (Wave 1 & 2 combined)
@@ -239,7 +239,7 @@ Plans:
 | 4. Timelapse Recording | 3/3 | Complete    | 2026-04-02 |
 | 5. Documentation & README | 1/1 | **Complete** | 2026-04-02 |
 | 6. Structured Logging with Zap | 2/2 | Complete    | 2026-04-02 |
-| 7. Colored Logging with Zerolog | 1/1 | **Complete** | 2026-04-02 |
+| 7. Colored Logging with Zerolog | 1/1 | Complete    | 2026-04-02 |
 
 ---
 
