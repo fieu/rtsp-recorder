@@ -113,6 +113,13 @@ func runRecord(cmd *cobra.Command, args []string) error {
 		fmt.Printf("  Retry Attempts: %d\n", cfg.RetryAttempts)
 	}
 
+	// Per D-59: Display timelapse info when enabled
+	if cfg.TimelapseDuration > 0 {
+		speedup := float64(cfg.Duration) / float64(cfg.TimelapseDuration)
+		fmt.Printf("  Timelapse: %.0fx speed (%v -> %v)\n", speedup, cfg.Duration, cfg.TimelapseDuration)
+		fmt.Println("  Audio: disabled (timelapse mode)")
+	}
+
 	fmt.Println()
 	fmt.Println("[INFO] Starting recording...")
 	fmt.Println("[INFO] Press Ctrl+C to stop")

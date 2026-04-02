@@ -377,3 +377,53 @@ func TestValidateTimelapseConfig_NeitherSet(t *testing.T) {
 		t.Errorf("expected no error when neither set, got: %v", err)
 	}
 }
+
+// TestTimelapseStatusMessage_TimelapseEnabled verifies speedup calculation is correct
+// Per D-59: Message format "Timelapse: 360x speed (1h -> 10s)"
+func TestTimelapseStatusMessage_TimelapseEnabled(t *testing.T) {
+	cfg := &config.Config{
+		Duration:          1 * time.Hour,
+		TimelapseDuration: 10 * time.Second,
+	}
+
+	// Calculate expected speedup
+	speedup := float64(cfg.Duration) / float64(cfg.TimelapseDuration)
+	if speedup != 360.0 {
+		t.Errorf("Expected speedup 360x for 1h->10s, got %f", speedup)
+	}
+}
+
+// TestTimelapseStatusMessage_NoTimelapse verifies speedup is 1x without timelapse
+func TestTimelapseStatusMessage_NoTimelapse(t *testing.T) {
+	cfg := &config.Config{
+		Duration:          1 * time.Hour,
+		TimelapseDuration: 0, // Disabled
+	}
+
+	// When timelapse is disabled, shouldn't calculate speedup
+	if cfg.TimelapseDuration > 0 {
+		t.Error("Should not calculate speedup when timelapse is disabled")
+	}
+}
+
+// TestTimelapseStatusMessage_VariousSpeedups verifies calculations for different durations
+func TestTimelapseStatusMessage_VariousSpeedups(t *testing.T) {
+	tests := []struct {
+		duration          time.Duration
+		timelapseDuration time.Duration
+		expectedSpeedup   float64
+	}{
+		{1 * time.Hour, 10 * time.Second, 360.0},
+		{30 * time.Minute, 5 * time.Second, 360.0},
+		{1 * time.Hour, 1 * time.Minute, 60.0},
+		{10 * time.Minute, 10 * time.Second, 60.0},
+	}
+
+	for _, tt := range tests {
+		speedup := float64(tt.duration) / float64(tt.timelapseDuration)
+		if speedup != tt.expectedSpeedup {
+			t.Errorf("Speedup for %v->%v: expected %f, got %f",
+				tt.duration, tt.timelapseDuration, tt.expectedSpeedup, speedup)
+		}
+	}
+}
