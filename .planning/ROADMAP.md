@@ -229,6 +229,25 @@ Plans:
 
 ---
 
+### Phase 8: Periodic Progress Logging
+
+**Goal:** Replace the live progress bar with periodic log messages showing recording stats at configurable intervals
+
+**Depends on:** Phase 2 (Core Recording Engine)
+
+**Requirements:** LOG-06, LOG-07
+
+**Success Criteria** (what must be TRUE):
+
+1. Live progress bar (\r overwrite) is removed
+2. Periodic log messages appear every X seconds (default 10s, configurable)
+3. Each log message shows current recording stats (bytes, duration, bitrate)
+4. Configurable via YAML config: `progress_interval` field
+
+**Plans:** TBD
+
+---
+
 ## Progress Tracking
 
 | Phase | Plans Complete | Status | Completed |
@@ -240,6 +259,7 @@ Plans:
 | 5. Documentation & README | 1/1 | **Complete** | 2026-04-02 |
 | 6. Structured Logging with Zap | 2/2 | Complete    | 2026-04-02 |
 | 7. Colored Logging with Zerolog | 1/1 | Complete    | 2026-04-02 |
+| 8. Periodic Progress Logging | 0/TBD | Not started | — |
 
 ---
 
