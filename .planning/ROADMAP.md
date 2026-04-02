@@ -154,6 +154,24 @@ Plans:
 
 ---
 
+### Phase 5: Documentation & README
+
+**Goal:** Create a comprehensive README.md for GitHub showcasing the rtsp-recorder project with clear documentation, examples, and emoji-enhanced presentation
+
+**Depends on:** All previous phases (complete feature set)
+
+**Requirements:** DOCS-01, DOCS-02, DOCS-03
+
+**Success Criteria** (what must be TRUE):
+
+1. README.md exists at repository root with professional GitHub-ready formatting
+2. README includes: installation instructions, usage examples, feature overview with emojis, and contribution guidelines
+3. README references the correct GitHub repository: github.com/fieu/rtsp-recorder
+
+**Plans:** TBD
+
+---
+
 ## Progress Tracking
 
 | Phase | Plans Complete | Status | Completed |
@@ -162,6 +180,7 @@ Plans:
 | 2. Core Recording Engine | 3/3 | **Complete** | 2026-04-02 |
 | 3. Resilience & Feedback | 2/2 | **Complete** | 2026-04-02 |
 | 4. Timelapse Recording | 3/3 | Complete    | 2026-04-02 |
+| 5. Documentation & README | 0/TBD | Not started | — |
 
 ---
 
