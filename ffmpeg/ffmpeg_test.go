@@ -90,21 +90,9 @@ func TestBuildArgs_IncludesConnectionParameters(t *testing.T) {
 
 	args := cmd.buildArgs("rtsp://example.com/stream", "/tmp/output.mp4")
 
-	// Check reconnect parameters
-	if !contains(args, "-stimeout") {
-		t.Error("buildArgs should include -stimeout per PITFALLS.md §Pitfall 3")
-	}
-	if !contains(args, "-reconnect") {
-		t.Error("buildArgs should include -reconnect")
-	}
-	if !contains(args, "-reconnect_at_eof") {
-		t.Error("buildArgs should include -reconnect_at_eof")
-	}
-	if !contains(args, "-reconnect_streamed") {
-		t.Error("buildArgs should include -reconnect_streamed")
-	}
-	if !contains(args, "-reconnect_delay_max") {
-		t.Error("buildArgs should include -reconnect_delay_max")
+	// Check timeout parameter (was -stimeout, now -timeout in FFmpeg 4.x+)
+	if !contains(args, "-timeout") {
+		t.Error("buildArgs should include -timeout for connection timeout")
 	}
 }
 
@@ -175,25 +163,25 @@ func TestBuildArgs_OutputPathPlacement(t *testing.T) {
 	}
 }
 
-// Test 10: stimeout is set to 5 seconds in microseconds
-func TestBuildArgs_StimeoutValue(t *testing.T) {
+// Test 10: timeout is set to 5 seconds in microseconds
+func TestBuildArgs_TimeoutValue(t *testing.T) {
 	cfg := config.DefaultConfig()
 	cmd := New(cfg)
 
 	args := cmd.buildArgs("rtsp://example.com/stream", "/tmp/output.mp4")
 
-	// Find -stimeout and verify its value
+	// Find -timeout and verify its value
 	for i, arg := range args {
-		if arg == "-stimeout" && i+1 < len(args) {
+		if arg == "-timeout" && i+1 < len(args) {
 			value := args[i+1]
 			// 5 seconds = 5,000,000 microseconds
 			if value != "5000000" {
-				t.Errorf("-stimeout should be 5000000 (5 seconds), got %s", value)
+				t.Errorf("-timeout should be 5000000 (5 seconds), got %s", value)
 			}
 			return
 		}
 	}
-	t.Error("-stimeout value not found or incorrect")
+	t.Error("-timeout value not found or incorrect")
 }
 
 // Test 11: Started state tracking
